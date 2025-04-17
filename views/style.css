@@ -31,7 +31,6 @@
 
 	}
 
-
 	.btn-sec {
 
 		padding: 0.5em;
@@ -128,7 +127,7 @@ html {
 							}
 							small {
 								font-size: xx-small;
-								opacity: 0.2;
+								color: #ccc;
 							}
 
 						}

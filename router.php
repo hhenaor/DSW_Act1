@@ -24,11 +24,8 @@
 	} else {
 
 		if ($_SERVER['PHP_SELF'] == '/router.php') {
-			header('Location: index.php');
-		} else {
-
+			header('Location: ..');
 		}
-
 
 	}
 

@@ -2,7 +2,7 @@
 
 	require_once 'Icrud.php';
 	require_once __DIR__ . '/../entities/student.php';
-	require_once '../../utils/database/Iconn_imp.php';
+	require_once '../utils/database/Iconn_imp.php';
 
 	class Icrud_student_imp implements Icrud {
 
@@ -15,16 +15,20 @@
 
 			$result = $conn->query($sql);
 
-			$row = $result->fetch_assoc();
+			if ($result === false) {
+				throw new Exception("Query failed");
+			}
 
-			if ( count($row) > 0 ) {
-				$student = new student(
-					$row['username'],
-					$row['password'],
-					$row['name'],
-					$row['email']
-				);
-				return $student;
+			if ($result->num_rows > 0) {
+				while ($row = $result->fetch_assoc()) {
+					$student = new student(
+						$row['username'],
+						$row['password'],
+						$row['name'],
+						$row['email']
+					);
+					return $student;
+				}
 			} else {
 				throw new Exception("Student not found");
 			}

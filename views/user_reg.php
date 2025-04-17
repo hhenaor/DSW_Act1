@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link rel="stylesheet" href="views/style.css">
+	<script defer src="views/js/AJAX_validator.js"></script>
 
 	<title>Register - mpNotes</title>
 
@@ -27,7 +28,7 @@
 						<label for="username_form">Username</label>
 					</div>
 					<input type="text" id="username_form" minlength="4" maxlength="15" placeholder="username" required>
-					<small>Min 8 characters / You can't change it later!</small>
+					<small id="username_info">Min 4 characters / You can't change it later!</small>
 				</div>
 				<div class="col">
 					<div class="row">
