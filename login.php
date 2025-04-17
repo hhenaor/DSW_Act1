@@ -1,6 +1,6 @@
 <?php
 
-	$path = "index";
+	$path = "login";
 	require_once 'router.php';
 
 ?>

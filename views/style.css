@@ -1,0 +1,148 @@
+:root {
+	--main: #0770ff;
+	--secn: #07ff70;
+}
+
+* {
+
+	padding: 0;
+	margin: 0;
+
+	color: #111;
+
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+	user-select: none;
+
+	.btn-man, button.btn-man {
+
+		padding: 0.5em;
+
+		color: #fff;
+		background-color: var(--main);
+
+		border: none;
+		border-radius: 0.5em;
+
+		text-decoration: none;
+		font-weight: 500;
+
+		font-size: large;
+
+	}
+
+
+	.btn-sec {
+
+		padding: 0.5em;
+
+		background-color: var(--secn);
+
+		/* border: solid 1px #0000; */
+		border-radius: 0.5em;
+
+		text-decoration: none;
+		font-weight: 500;
+
+	}
+
+	.row {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.col {
+		display: flex;
+		flex-direction: column;
+	}
+
+	input {
+
+		padding: 0.5em;
+
+		border: solid 1px #ccc;
+		border-radius: 0.5em;
+
+		outline: none;
+
+	}
+
+}
+
+html {
+
+	body {
+
+		height: 100vh;
+
+		header {
+
+			padding: 1em;
+
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+
+			background-color: var(--main);
+
+			a {
+				text-decoration: none;
+			}
+
+		}
+
+		main {
+
+			 /* - register main */
+			&#regm {
+
+				padding: 1em;
+
+				display: flex;
+				flex-direction: row;
+				/* align-items: center; */
+				justify-content: space-around;
+
+				/* background-color: #ff2; */
+
+				height: 100%;
+
+				div {
+
+					width: 100%;
+
+					form {
+
+						width: 50%;
+
+						h2 {margin:1em 0;}
+
+						padding: 1em;
+
+						div {
+
+							label {
+								margin: 1em 0;
+								font-weight: 500;
+							}
+							small {
+								font-size: xx-small;
+								opacity: 0.2;
+							}
+
+						}
+
+						button {margin-top: 1em;}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+}

@@ -1,6 +1,6 @@
 <?php
 
-	$path = "index";
+	$path = "reg";
 	require_once 'router.php';
 
 ?>
