@@ -8,19 +8,19 @@
 
 		public function queryID($id) {
 
-			$sql = "SELECT * FROM students WHERE username = $id";
+			$sql = "SELECT * FROM students WHERE username = '$id'";
 
 			$conn = conn_imp::getInstance();
 			$conn->connect();
 
 			$result = $conn->query($sql);
 
-			if ($result === false) {
-				throw new Exception("Query failed");
+			if ( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
 			}
 
-			if ($result->num_rows > 0) {
-				while ($row = $result->fetch_assoc()) {
+			if ( $result->num_rows > 0 ) {
+				while ( $row = $result->fetch_assoc() ) {
 					$student = new student(
 						$row['username'],
 						$row['password'],
@@ -30,7 +30,7 @@
 					return $student;
 				}
 			} else {
-				throw new Exception("Student not found");
+				return "Student not found";
 			}
 
 		}
@@ -44,10 +44,14 @@
 
 			$result = $conn->query($sql);
 
+			if( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
+			}
+
 			$students = array();
 
-			if ($result->num_rows > 0) {
-				while ($row = $result->fetch_assoc()) {
+			if ( $result->num_rows > 0 ) {
+				while ( $row = $result->fetch_assoc() ) {
 					$student = new student(
 						$row['username'],
 						$row['password'],

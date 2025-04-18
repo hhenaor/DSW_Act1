@@ -64,6 +64,18 @@
 			$this->conn = null;
 		}
 
+		// return errors
+		public function getError() {
+
+			// show detailed error?
+			if (true) {
+				return $this->conn->error . ")";
+			} else {
+				// show generic error
+				return "MySQL related error)";
+			}
+		}
+
 	}
 
 ?>

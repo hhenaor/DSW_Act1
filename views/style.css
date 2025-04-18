@@ -1,6 +1,8 @@
 :root {
 	--main: #0770ff;
+	--mhov: #4592fd;
 	--secn: #07ff70;
+	--shov: #7dffb3;
 }
 
 * {
@@ -24,10 +26,13 @@
 		border: none;
 		border-radius: 0.5em;
 
+		font-size: large;
 		text-decoration: none;
 		font-weight: 500;
 
-		font-size: large;
+		cursor: pointer;
+
+		&:hover { background-color: var(--mhov); }
 
 	}
 
@@ -37,11 +42,16 @@
 
 		background-color: var(--secn);
 
-		/* border: solid 1px #0000; */
+		border: none;
 		border-radius: 0.5em;
 
+		font-size: large;
 		text-decoration: none;
 		font-weight: 500;
+
+		cursor: pointer;
+
+		&:hover { background-color: var(--shov); }
 
 	}
 
@@ -64,6 +74,40 @@
 
 		outline: none;
 
+	}
+
+	ul li { margin-left: 1em; }
+
+	.errs {
+
+		padding: 1em;
+		margin: 1em 0;
+
+		align-items: center;
+
+		border: solid 2px #f00;
+		border-radius: 0.5em;
+
+		color: #f00;
+		background-color: #fcc;
+
+		font-weight: 500;
+
+	}
+
+	.note {
+		padding: 1em;
+		margin: 1em 0;
+
+		align-items: center;
+
+		border: solid 2px #00f;
+		border-radius: 0.5em;
+
+		color: #00f;
+		background-color: #ccf;
+
+		font-weight: 500;
 	}
 
 }
@@ -94,7 +138,7 @@ html {
 		main {
 
 			 /* - register main */
-			&#regm {
+			&#regm, &#logm {
 
 				padding: 1em;
 
