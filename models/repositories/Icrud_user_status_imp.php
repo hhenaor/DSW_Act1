@@ -2,7 +2,7 @@
 
     require_once 'Icrud.php';
     require_once __DIR__ . '/../entities/user_status.php';
-    require_once '../../utils/database/Iconn_imp.php';
+	require_once '../utils/database/Iconn_imp.php';
 
     class Icrud_user_status_imp implements Icrud {
 
@@ -15,17 +15,21 @@
 
             $result = $conn->query($sql);
 
-            $row = $result->fetch_assoc();
+			if ( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
+			}
 
-            if ( count($row) > 0 ) {
-                $user_status = new UserStatus(
-                    $row['user_id'],
-                    $row['status']
-                );
-                return $user_status;
-            } else {
-                throw new Exception("User status not found");
-            }
+			if ( $result->num_rows > 0 ) {
+				while ( $row = $result->fetch_assoc() ) {
+					$user_status = new UserStatus(
+						$row['user_id'],
+						$row['status']
+					);
+					return $user_status;
+				}
+			} else {
+				throw new Exception("User status not found");
+			}
 
         }
 

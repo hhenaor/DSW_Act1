@@ -2,6 +2,8 @@
 
 	require_once '../models/repositories/Icrud_student_imp.php';
 
+	// * service focus on login/reegister data/input (AJAX) validations
+
 	class ValidationService {
 
 		private $studentRepo;
@@ -10,21 +12,23 @@
 			$this->studentRepo = new Icrud_student_imp();
 		}
 
-		public function validateUsername($value) {
+		// * AJAX, log and sign
+
+		public function validateUsername($username) {
 
 			// Check if the username is empty or shorter than 4 char or larger than 15 chars
-			if ( strlen($value) < 4 || strlen($value) > 15 ) {
+			if ( strlen($username) < 4 || strlen($username) > 15 ) {
 				return "Username is not valid. It must be between 4 and 15 characters.";
 			}
 
 			// Check if the username contains only letters, numbers, and underscores
-			if ( !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $value) ) {
+			if ( !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $username) ) {
 				return "Username must start with a letter and can only contain letters (A-z) numbers (0-9) and underscores (_).";
 			}
 
 			try {
 
-				if ( $this->studentRepo->queryID($value) == "Student not found" ) {
+				if ( $this->studentRepo->queryID($username) == "Student not found" ) {
 					return "Username is valid!";
 				} else {
 					return "Username already exists.";
@@ -38,9 +42,9 @@
 
 		}
 
-		public function validateEmail($value) {
+		public function validateEmail($email) {
 			// Check if the email is empty or invalid
-			if ( empty($value) || !filter_var($value, FILTER_VALIDATE_EMAIL) ) {
+			if ( empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
 				return "Email format is not valid.";
 			}
 
@@ -50,7 +54,7 @@
 
 				// Search for existing email
 				foreach ( $students as $student ) {
-					if ( $student->getEmail() === $value ) {
+					if ( $student->getEmail() === $email ) {
 						return "Email already exists.";
 					}
 				}
@@ -78,21 +82,23 @@
 			return "Passwords match!";
 		}
 
-		public function findUsername($value) {
+		// * log
+
+		public function findUsername($username) {
 
 			// Check if the username is empty or shorter than 4 char or larger than 15 chars
-			if ( strlen($value) < 4 || strlen($value) > 15 ) {
+			if ( strlen($username) < 4 || strlen($username) > 15 ) {
 				return "Username is not valid. It must be between 4 and 15 characters.";
 			}
 
 			// Check if the username contains only letters, numbers, and underscores
-			if ( !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $value) ) {
+			if ( !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $username) ) {
 				return "Username must start with a letter and can only contain letters (A-z) numbers (0-9) and underscores (_).";
 			}
 
 			try {
 
-				if ( $this->studentRepo->queryID($value) == "Student not found" ) {
+				if ( $this->studentRepo->queryID($username) == "Student not found" ) {
 					return "Username not found.";
 				} else {
 					return "Username found!";
@@ -120,6 +126,22 @@
 			} catch (Exception $e) {
 
 				return "Error validating password (" . $e->getMessage();
+
+			}
+
+		}
+
+		// * get user id for verification
+
+		public function getUserID($username) {
+
+			try {
+
+				return $this->studentRepo->queryID($username);
+
+			} catch (Exception $e) {
+
+				return "Error getting username (" . $e->getMessage();
 
 			}
 

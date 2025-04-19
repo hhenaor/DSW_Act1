@@ -2,8 +2,7 @@
 
 	require_once 'Icrud.php';
 	require_once __DIR__ . '/../entities/note_rule.php';
-	require_once '../../utils/database/Iconn_imp.php';
-
+	require_once '../utils/database/Iconn_imp.php';
 	class Icrud_note_rule_imp implements Icrud {
 
 		public function queryID($id) {

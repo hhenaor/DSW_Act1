@@ -119,8 +119,8 @@ CREATE TABLE `user_statuses` (
   `user_id` varchar(255) NOT NULL,
   `status` varchar(255) NOT NULL,
 	-- * 0 = ban
-	-- * 1 = disabled
-	-- * [A-Za-z0-9]{6} = active, verification code
+	-- * 1 = active, after verification
+	-- * [A-Za-z0-9]{6} = has to verify, verification code
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_user_statuses_students`
     FOREIGN KEY (`user_id`) REFERENCES `students` (`username`)

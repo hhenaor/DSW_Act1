@@ -2,7 +2,7 @@
 
     require_once 'Icrud.php';
     require_once __DIR__ . '/../entities/user_registration.php';
-    require_once '../../utils/database/Iconn_imp.php';
+	require_once '../utils/database/Iconn_imp.php';
 
     class Icrud_user_registration_imp implements Icrud {
 

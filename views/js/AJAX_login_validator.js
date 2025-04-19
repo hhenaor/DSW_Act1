@@ -19,7 +19,9 @@ function validateUsername() {
 
 			} else {
 
-				fetch(`/controllers/input_controller.php?value=${encodeURIComponent(username)}&action=user&l=true`)
+				fetch(`/controllers/input_controller.php?value=${encodeURIComponent(username)}&action=user&l=true`, {
+					headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+
 					.then(response => response.json())
 					.then(data => {
 

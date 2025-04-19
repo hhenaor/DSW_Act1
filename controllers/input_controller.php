@@ -1,75 +1,88 @@
 <?php
 
+	session_start();
+
 	require_once '../models/services/validation_service.php';
 
-	class InputController {
+	// * controller focus on inputs on register and login mostly fo AJAX requests
 
-		private $validation_service;
+	if ( !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ) {
 
-		public function __construct() {
-			$this->validation_service = new ValidationService();
-		}
+		class InputController {
 
-		public function handler() {
+			private $validation_service;
 
-			header('Content-Type: application/json');
-
-			$value = $_GET['value'] ?? null;
-			$action = $_GET['action'] ?? null;
-			$login = $_GET['l'] ?? null;
-
-			if ( !empty($login) && !empty($value) ) {
-
-				// validate login
-				echo json_encode($this->validation_service->findUsername($value));
-				return;
-
+			public function __construct() {
+				$this->validation_service = new ValidationService();
 			}
 
-			// Check if the value and action are empty
-			if ( (empty($value) || empty($action)) && $action !== 'pass'  ) {
+			public function handler() {
 
-				echo json_encode('Invalid request.' . $action );
-				return;
+				header('Content-Type: application/json');
 
-			}
+				$value = $_GET['value'] ?? null;
+				$action = $_GET['action'] ?? null;
+				$login = $_GET['l'] ?? null;
 
-			if ( $action === 'user' ) {
+				if ( !empty($login) && !empty($value) ) {
 
-				// validate username
-				echo json_encode($this->validation_service->validateUsername($value));
-
-			} else if ( $action === 'email' ) {
-
-				// validate email
-				echo json_encode($this->validation_service->validateEmail($value));
-
-			} else if ( $action === 'pass' ) { // password case
-
-				$pass1 = $_GET['pass1'] ?? null;
-				$pass2 = $_GET['pass2'] ?? null;
-
-				if (empty($pass1) || empty($pass2)) {
-
-					echo json_encode('Invalid request.');
+					// validate login
+					echo json_encode($this->validation_service->findUsername($value));
 					return;
 
 				}
 
-				echo json_encode($this->validation_service->matchPasswords($pass1, $pass2));
+				// Check if the value and action are empty
+				if ( (empty($value) || empty($action)) && $action !== 'pass'  ) {
 
-			} else {
+					echo json_encode('Invalid request.' . $action );
+					return;
 
-				// unknow action
-				echo json_encode('Invalid action.');
+				}
+
+				if ( $action === 'user' ) {
+
+					// validate username
+					echo json_encode($this->validation_service->validateUsername($value));
+
+				} else if ( $action === 'email' ) {
+
+					// validate email
+					echo json_encode($this->validation_service->validateEmail($value));
+
+				} else if ( $action === 'pass' ) { // password case
+
+					$pass1 = $_GET['pass1'] ?? null;
+					$pass2 = $_GET['pass2'] ?? null;
+
+					if (empty($pass1) || empty($pass2)) {
+
+						echo json_encode('Invalid request.');
+						return;
+
+					}
+
+					echo json_encode($this->validation_service->matchPasswords($pass1, $pass2));
+
+				} else {
+
+					// unknow action
+					echo json_encode('Invalid action.');
+
+				}
 
 			}
 
 		}
 
-	}
+		$controller = new InputController();
+		$controller->handler();
 
-	$controller = new InputController();
-	$controller->handler();
+	} else {
+
+		$_SESSION['error'] = "Invalid request.";
+		header("Location: ../login.php");
+
+	}
 
 ?>

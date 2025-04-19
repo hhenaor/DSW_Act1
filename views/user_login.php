@@ -36,6 +36,7 @@
 						</ul>
 					</div>
 				<?php unset($_SESSION['success']); endif; ?>
+
 				<?php if(isset($_SESSION['error'])): ?>
 					<div class="errs col">
 						<h3>Errors:</h3>
@@ -48,6 +49,7 @@
 						</ul>
 					</div>
 				<?php unset($_SESSION['error']); endif; ?>
+
 
 				<div class="col">
 					<div class="row">

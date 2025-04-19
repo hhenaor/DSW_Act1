@@ -2,20 +2,23 @@
 
 	session_start();
 
-	echo "Waiting for server response...<br>";
-
 	require_once '../models/services/validation_service.php';
-	require_once '../models/repositories/Icrud_student_imp.php';
+	require_once '../models/services/verification_service.php';
 
+	// * method focus on register and login
+
+	// * only if controller is called on log/sign submit
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 		class AuthController {
 
 			private $validation_service;
+			private $verification_service;
 			private $studentRepo;
 
 			public function __construct() {
 				$this->validation_service = new ValidationService();
+				$this->verification_service = new VerificationService();
 				$this->studentRepo = new Icrud_student_imp();
 			}
 
@@ -38,43 +41,21 @@
 
 				if (count($errors) > 0) {
 					// If there are errors, redirect to the login page
-					header("Location: ../login.php");
 					$_SESSION['error'] = implode(", ", $errors);
-					return;
-				}
-
-				// no errors? register user
-
-				else {
 					header("Location: ../login.php");
-					$_SESSION['success'] = "login now!";
 					return;
 				}
 
-				// try {
+				// no errors? login user
+				else {
 
-				// 	$newStudent = new student(
-				// 		$_POST['username_form'],
-				// 		password_hash($_POST['password_form'], PASSWORD_BCRYPT),
-				// 		"",
-				// 		$_POST['email_form']
-				// 	);
+					// $_SESSION['success'] = "login now!";
+					$userID = $this->validation_service->getUserID($_POST['username_form']);
+					$_SESSION['user_id'] = $userID instanceof student ? $userID->getUsername() : null;
+					header("Location: account_controller.php");
+					return;
 
-				// 	$this->studentRepo->insert($newStudent);
-
-				// 	// add verification code
-
-				// 	// send mail
-
-				// 	$_SESSION['success'] = "User registration successful! Now you can login.";
-				// 	header("Location: ../login.php");
-
-				// } catch (Exception $e) {
-
-				// 	$_SESSION['error'] = "Error creating account (" . $e->getMessage();
-				// 	header("Location: ../register.php");
-
-				// }
+				}
 
 			}
 
@@ -108,21 +89,23 @@
 					return;
 				}
 
-				// no errors? register user
+				// no errors? try register user
 				try {
 
+					// create student
 					$newStudent = new student(
 						$_POST['username_form'],
 						password_hash($_POST['password_form'], PASSWORD_BCRYPT),
-						"",
+						"", // set on verification
 						$_POST['email_form']
 					);
 
 					$this->studentRepo->insert($newStudent);
 
 					// add verification code
+					$this->verification_service->createVerification($newStudent);
 
-					// send mail
+					// TODO send mail
 
 					$_SESSION['success'] = "User registration successful! Now you can login.";
 					header("Location: ../login.php");
@@ -140,10 +123,6 @@
 				// Maneja logout
 			}
 
-			public function verifyEmail($code) {
-				// Verifica código de email
-			}
-
 		}
 
 		$controller = new AuthController();
@@ -155,16 +134,7 @@
 
 		elseif ($action === 'logout') { $controller->logout(); }
 
-		elseif ($action === 'verifyEmail') {
-
-			$code = $_GET['code'] ?? null;
-			if ($code) {
-				$controller->verifyEmail($code);
-			} else {
-				echo json_encode('Invalid request.');
-			}
-
-		} else {
+		else {
 
 			$_SESSION['error'] = "Invalid request.";
 			header("Location: ../login.php");
