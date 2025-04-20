@@ -71,7 +71,7 @@
 
 				<button class="btn-man" type="submit">Login</button>
 				<a href="register.php">Don't have an user?</a>
-				<a href="recover.php">Forgot your user/password?</a>
+				<a href="recover.php">I need help!</a>
 
 			</form>
 

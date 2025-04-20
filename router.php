@@ -21,8 +21,8 @@
 		// - site.com/register.php
 		if( $path == "reg" ) { if ($_SERVER['PHP_SELF'] == '/register.php') { require "views/user_reg.php"; } }
 
-		// * Route for "register url" as user_reg.php view
-		// - site.com/register.php
+		// * Route for "checkpoint url" as user_validation.php view
+		// - site.com/checkporint.php
 		if( $path == "check" ) { if ($_SERVER['PHP_SELF'] == '/checkpoint.php') { require "views/user_validation.php"; } }
 
 	} else {

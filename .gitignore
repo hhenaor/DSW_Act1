@@ -1,1 +1,8 @@
-/design
+/vendor/
+composer.phar
+composer.lock
+.env
+.env.backup
+.phpunit.result.cache
+/.idea
+/.vscode

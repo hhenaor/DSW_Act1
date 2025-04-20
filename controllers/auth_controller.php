@@ -49,7 +49,6 @@
 				// no errors? login user
 				else {
 
-					// $_SESSION['success'] = "login now!";
 					$userID = $this->validation_service->getUserID($_POST['username_form']);
 					$_SESSION['user_id'] = $userID instanceof student ? $userID->getUsername() : null;
 					header("Location: account_controller.php");

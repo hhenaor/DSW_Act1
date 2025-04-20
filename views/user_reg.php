@@ -78,6 +78,7 @@
 
 				<button class="btn-man" type="submit">Register</button>
 				<a href="login.php">Do you have an user?</a>
+				<a href="recover.php">I need help!</a>
 
 			</form>
 

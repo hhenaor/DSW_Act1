@@ -70,7 +70,8 @@ function validateEmail() {
 
 		} else {
 
-			fetch(`/controllers/input_controller.php?value=${encodeURIComponent(email)}&action=email`)
+			fetch(`/controllers/input_controller.php?value=${encodeURIComponent(email)}&action=email`, {
+				headers: { 'X-Requested-With': 'XMLHttpRequest' } })
 				.then(response => response.json())
 				.then(data => {
 
@@ -104,7 +105,8 @@ function validatePasswords() {
 			passwordInfo.textContent = 'A password input is missing.';
 			passwordInfo.style.color = '#f44336';
 		} else {
-			fetch(`/controllers/input_controller.php?action=pass&pass1=${encodeURIComponent(password1)}&pass2=${encodeURIComponent(password2)}`)
+			fetch(`/controllers/input_controller.php?action=pass&pass1=${encodeURIComponent(password1)}&pass2=${encodeURIComponent(password2)}`, {
+				headers: { 'X-Requested-With': 'XMLHttpRequest' } })
 				.then(response => response.json())
 				.then(data => {
 					let message = data.message || data;

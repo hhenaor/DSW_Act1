@@ -4,6 +4,9 @@
 
 	require_once '../models/services/verification_service.php';
 
+	// * method focus on login process
+
+	// * only if on process of login
 	if (isset($_SESSION['user_id']) === true) {
 
 		class AccountController {
@@ -29,10 +32,33 @@
 
 			}
 
+			public function sendVerificationCode() {
+
+				try {
+
+					return $this->verification_service->sendVerificationMail($_SESSION['user_id']);
+
+				} catch (Exception $e) {
+
+					return $e;
+
+				}
+
+			}
+
 		}
 
 		$accountController = new AccountController();
-		$status = $accountController->getUserStatus();
+
+		try {
+
+			$status = $accountController->getUserStatus();
+
+		} catch (Exception $e) {
+
+			$_SESSION['error'] = "An error occurred: " . $e->getMessage();
+			header("Location: ../login.php");
+		}
 
 		if ($status === '0') {
 
@@ -47,6 +73,18 @@
 			header("Location: ../login.php");
 
 		} else if (preg_match('/^[A-Za-z0-9]{6}$/', $status)) {
+
+			try {
+
+				// if special is not mail return error to login
+				$_SESSION['special'] = $accountController->sendVerificationCode();
+
+			} catch (Exception $e) {
+
+				$_SESSION['error'] = "An error occurred: " . $e->getMessage();
+				header("Location: ../login.php");
+
+			}
 
 			header("Location: ../checkpoint.php");
 
