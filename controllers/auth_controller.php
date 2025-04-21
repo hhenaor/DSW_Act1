@@ -8,7 +8,7 @@
 	// * method focus on register and login
 
 	// * only if controller is called on log/sign submit
-	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
 
 		class AuthController {
 

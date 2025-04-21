@@ -22,7 +22,7 @@
 
 		<div>
 
-			<form class="col" action="Controllers/account_controller.php?v=true" method="post">
+			<form class="col" action="Controllers/account_controller.php?action=verify" method="post">
 
 				<h2>Verification process</h2>
 
@@ -31,6 +31,19 @@
 					<div class="note col">
 						<h3>Notice:</h3>
 						<?php echo "Hi, " . htmlspecialchars($_SESSION['user_id']) .".<br>A verification code was send to your linked email (".$_SESSION['special']."). To start using mpNotes services enter the code in the verification field."; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if(isset($_SESSION['error'])): ?>
+					<div class="errs col">
+						<h3>Errors:</h3>
+						<ul>
+							<?php
+							$errors = explode(", ", $_SESSION['error']);
+							foreach($errors as $error): ?>
+								<li><?php echo htmlspecialchars($error); ?></li>
+							<?php endforeach; ?>
+						</ul>
 					</div>
 				<?php unset($_SESSION['error']); endif; ?>
 

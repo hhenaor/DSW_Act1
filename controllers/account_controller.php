@@ -7,7 +7,7 @@
 	// * method focus on login process
 
 	// * only if on process of login
-	if (isset($_SESSION['user_id']) === true) {
+	if ( isset($_SESSION['user_id']) === true ) {
 
 		class AccountController {
 
@@ -32,6 +32,7 @@
 
 			}
 
+			// send via email verification code
 			public function sendVerificationCode() {
 
 				try {
@@ -46,9 +47,80 @@
 
 			}
 
+			// check if code is correct
+			public function checkVerificationCode() {
+
+				try {
+
+					return $this->verification_service->checkVerificationCode($_SESSION['user_id'], $_POST['usercode_form']);
+
+				} catch (Exception $e) {
+
+					return $e;
+
+				}
+
+			}
+
+			// set nickname
+			public function setNickname() {
+
+				try {
+
+					return $this->verification_service->setNickname($_SESSION['user_id'], $_POST['nickname_form']);
+
+				} catch (Exception $e) {
+
+					return $e;
+
+				}
+
+			}
+
 		}
 
 		$accountController = new AccountController();
+
+		if ( !empty($_GET['action']) && $_GET['action'] == "verify" ) {
+
+			try {
+
+			    $statusCode = $accountController->checkVerificationCode();
+
+			    if ($statusCode !== true) {
+
+			        $_SESSION['error'] = $statusCode;
+			        header("Location: ../checkpoint.php");
+			        return;
+
+			    }
+
+			    $statusNick = $accountController->setNickname();
+
+			    if ($statusNick !== true) {
+
+			        $_SESSION['error'] = $statusNick;
+			        header("Location: ../checkpoint.php");
+			        return;
+
+			    }
+
+				// header("Location: ../dashboard.php");
+
+				$_SESSION['success'] = "GO TO DASHBOARD.";
+				header("Location: ../login.php");
+
+				return;
+
+			} catch (Exception $e) {
+
+			    $_SESSION['error'] = "An error occurred: " . $e->getMessage();
+			    header("Location: ../checkpoint.php");
+			    return;
+
+			}
+
+		}
 
 		try {
 
@@ -69,15 +141,27 @@
 
 			// header("Location: ../dashboard.php");
 
-			$_SESSION['success'] = "Log now.";
+			$_SESSION['success'] = "GO TO DASHBOARD.";
 			header("Location: ../login.php");
 
 		} else if (preg_match('/^[A-Za-z0-9]{6}$/', $status)) {
 
 			try {
 
-				// if special is not mail return error to login
-				$_SESSION['special'] = $accountController->sendVerificationCode();
+				$result = $accountController->sendVerificationCode();
+
+				if (filter_var($result, FILTER_VALIDATE_EMAIL)) {
+
+					$_SESSION['special'] = $result;
+
+				} else {
+
+					// TODO fix uncatched exception
+					$_SESSION['error'] = "CATASTROPHIC ERROR: API KEY RELATED.";
+					header("Location: ../login.php");
+					return;
+
+				}
 
 			} catch (Exception $e) {
 
@@ -95,7 +179,7 @@
 
 		}
 
-	}   else {
+	}  else {
 
 		$_SESSION['error'] = "Invalid login action.";
 		header("Location: ../login.php");

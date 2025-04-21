@@ -65,6 +65,7 @@
 
 			try {
 
+				// - ADD API KEY HERE!!!!!!!!!
 				$mailersend = new MailerSend(['api_key' => ""]);
 
 				// get student mail
@@ -108,9 +109,71 @@
 
 		}
 
-
 		// check verification code
+		public function checkVerificationCode($user, $inCode) {
 
+			// get student code
+			$code = $this->userStatusRepo->queryID($user);
+			$code = $code->getStatus();
+
+			$user = $this->studentRepo->queryID($user);
+
+			// check if code is valid
+			if ($code == $inCode) {
+
+				// update user status to verified 1
+				$codeStatus = new UserStatus($user->getUsername(), '1');
+
+				try {
+
+					$this->userStatusRepo->update($codeStatus);
+
+				} catch (Exception $e) {
+
+					throw new Exception("Error updating user status: " . $e->getMessage());
+
+				}
+
+				return true;
+
+			} else {
+
+				return "Invalid verification code.";
+
+			}
+
+		}
+
+		// set new nickname
+		// ! move to account_service
+		public function setNickname($user, $nickname) {
+
+			// check if nickname is valid
+			if (preg_match('/^[A-Za-z0-9]{4,20}$/', $nickname)) {
+
+				// get student and set nickname
+				$student = $this->studentRepo->queryID($user);
+				$student->setName($nickname);
+
+				try {
+
+					$this->studentRepo->update($student);
+
+				} catch (Exception $e) {
+
+					throw new Exception("Error updating user nickname: " . $e->getMessage());
+
+				}
+
+				return true;
+
+			} else {
+
+				return "Invalid nickname.";
+
+			}
+
+		}
 
 	}
 
