@@ -15,24 +15,35 @@
 
 			$result = $conn->query($sql);
 
-			$row = $result->fetch_assoc();
+			if ( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
+			}
 
-			if ( count($row) > 0 ) {
-				$course = new course(
-					$row['course_id'],
-					$row['name'],
-					$row['full_name'],
-					$row['description'],
-					$row['knowledge_area'],
-					$row['career'],
-					$row['credits'],
-					$row['thematic_content'],
-					$row['semester'],
-					$row['professor']
-				);
-				return $course;
+			if ( $result->num_rows > 0 ) {
+
+				while ( $row = $result->fetch_assoc() ) {
+
+					$course = new course(
+
+						$row['course_id'],
+						$row['name'],
+						$row['full_name'],
+						$row['description'],
+						$row['knowledge_area'],
+						$row['career'],
+						$row['credits'],
+						$row['thematic_content'],
+						$row['semester'],
+						$row['professor']
+
+					);
+
+					return $course;
+
+				}
+
 			} else {
-				throw new Exception("Course not found");
+				return null;
 			}
 
 		}
@@ -46,11 +57,18 @@
 
 			$result = $conn->query($sql);
 
+			if( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
+			}
+
 			$courses = array();
 
-			if ($result->num_rows > 0) {
-				while ($row = $result->fetch_assoc()) {
+			if ( $result->num_rows > 0 ) {
+
+				while ( $row = $result->fetch_assoc() ) {
+
 					$course = new course(
+
 						$row['course_id'],
 						$row['name'],
 						$row['full_name'],
@@ -61,34 +79,51 @@
 						$row['thematic_content'],
 						$row['semester'],
 						$row['professor']
+
 					);
+
 					array_push($courses, $course);
+
 				}
+
 				return $courses;
+
 			} else {
-				throw new Exception("No courses found");
+				return null;
 			}
 
 		}
 
 		public function insert($object) {
 
-			$sql = "INSERT INTO courses (name, full_name, description, knowledge_area, career, credits, thematic_content, semester, professor) VALUES (
-			'" . $object->getName() . "',
-			'" . $object->getFullName() . "',
-			'" . $object->getDescription() . "',
-			'" . $object->getKnowledgeArea() . "',
-			'" . $object->getCareer() . "',
-			" . $object->getCredits() . ",
-			'" . $object->getThematicContent() . "',
-			" . $object->getSemester() . ",
-			'" . $object->getProfessor() . "'
-			)";
+			try {
 
-			$conn = conn_imp::getInstance();
-			$conn->connect();
+				$sql = "INSERT INTO courses (name, full_name, description, knowledge_area, career, credits, thematic_content, semester, professor) VALUES (
 
-			$conn->update($sql);
+					'" . $object->getName() . "',
+					'" . $object->getFullName() . "',
+					'" . $object->getDescription() . "',
+					'" . $object->getKnowledgeArea() . "',
+					'" . $object->getCareer() . "',
+					" . $object->getCredits() . ",
+					'" . $object->getThematicContent() . "',
+					'" . $object->getSemester() . "',
+					'" . $object->getProfessor() . "'
+
+				)";
+
+				$conn = conn_imp::getInstance();
+				$conn->connect();
+
+				if ($conn->update($sql) === false) {
+					throw new Exception("Insert failed → " . $conn->getError());
+				}
+
+				return true;
+
+			} catch (Exception $e) {
+				throw new Exception("Error inserting course: " . $e->getMessage());
+			}
 
 		}
 

@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS `courses`, `students`, `note_rules`, `note_registers`, `use
 -- Estructura de tabla para la tabla `courses`
 -- * Registro de los cursos disponibles, creados por usuarios
 CREATE TABLE `courses` (
-  `course_id` int(255) NOT NULL,
+  `course_id` int(255) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `full_name` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
@@ -62,11 +62,10 @@ CREATE TABLE `students` (
 -- Estructura de tabla para la tabla `note_rules`
 -- * Registro de las reglas de notas, que definen los rangos de notas, creadas por estudiantes al crear cursos
 CREATE TABLE `note_rules` (
-  `note_rule_id` int(255) NOT NULL,
+  `note_rule_id` int(255) NOT NULL AUTO_INCREMENT,
   `course_id` int(255) NOT NULL,
   `note_count` int(255) NOT NULL,
-  `min_value` int(255) NOT NULL,
-  `max_value` int(255) NOT NULL,
+  `max_value` decimal(5, 2) NOT NULL,
   PRIMARY KEY (`note_rule_id`),
   INDEX `idx_fk_course_id` (`course_id`),
   CONSTRAINT `fk_note_rules_course`
@@ -80,7 +79,7 @@ CREATE TABLE `note_rules` (
 -- Estructura de tabla para la tabla `note_registers`
 -- * Registro de las notas, que son los valores de las notas obtenidas por los estudiantes en los cursos
 CREATE TABLE `note_registers` (
-  `note_id` int(255) NOT NULL,
+  `note_id` int(255) NOT NULL AUTO_INCREMENT,
   `note_rule_id` int(255) NOT NULL,
   `note_value` decimal(5, 2) NOT NULL,
   `comment` varchar(255) DEFAULT NULL,

@@ -15,8 +15,7 @@
 		private $professor;
 
 		// Constructor
-		public function __construct($course_id, $name, $full_name, $description, $knowledge_area, $career, $credits, $thematic_content, $semester, $professor) {
-			$this->course_id = $course_id;
+		public function __construct($name, $full_name, $description, $knowledge_area, $career, $credits, $thematic_content, $semester, $professor) {
 			$this->name = $name;
 			$this->full_name = $full_name;
 			$this->description = $description;

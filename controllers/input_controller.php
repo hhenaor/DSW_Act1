@@ -17,7 +17,7 @@
 				$this->validation_service = new ValidationService();
 			}
 
-			// - deal with validations for service
+			// - deal with validations AJAX for service
 			// ! returns JSON
 			public function AJAXhandler() {
 

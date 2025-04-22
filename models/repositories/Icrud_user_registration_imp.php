@@ -27,16 +27,27 @@
 
 			$result = $conn->query($sql);
 
-			$row = $result->fetch_assoc();
+			if ( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
+			}
 
-			if ( count($row) > 0 ) {
-				$registration = new UserRegistration(
-					$row['user_id'],
-					$row['course_id']
-				);
+			if ( $result->num_rows > 0 ) {
+
+				while ( $row = $result->fetch_assoc() ) {
+
+					$registration = new UserRegistration(
+
+						$row['user_id'],
+						$row['course_id']
+
+					);
+
 				return $registration;
+
+				}
+
 			} else {
-				throw new Exception("User registration not found");
+				return null;
 			}
 
 		}
@@ -48,38 +59,62 @@
             $conn = conn_imp::getInstance();
             $conn->connect();
 
-            $result = $conn->query($sql);
+			$result = $conn->query($sql);
+
+			if( $result === false ) {
+				throw new Exception("Query failed → " . $conn->getError());
+			}
 
             $registrations = array();
 
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
+			if ( $result->num_rows > 0 ) {
+
+				while ( $row = $result->fetch_assoc() ) {
+
                     $registration = new UserRegistration(
+
                         $row['user_id'],
                         $row['course_id']
-                    );
-                    array_push($registrations, $registration);
-                }
-                return $registrations;
-            } else {
-                throw new Exception("No user registrations found");
-            }
 
-        }
+                    );
+
+                    array_push($registrations, $registration);
+
+                }
+
+                return $registrations;
+
+			} else {
+				return null;
+			}
+
+		}
 
         public function insert($object) {
 
-            $sql = "INSERT INTO user_registrations (user_id, course_id) VALUES (
-            '" . $object->getUserId() . "',
-            " . $object->getCourseId() . "
-            )";
+			try {
 
-            $conn = conn_imp::getInstance();
-            $conn->connect();
+				$sql = "INSERT INTO user_registrations (user_id, course_id) VALUES (
 
-            $conn->update($sql);
+					'" . $object->getUserId() 	. "',
+					" . $object->getCourseId() 	. "
 
-        }
+				)";
+
+				$conn = conn_imp::getInstance();
+				$conn->connect();
+
+				if ($conn->update($sql) === false) {
+					throw new Exception("Insert failed → " . $conn->getError());
+				}
+
+				return true;
+
+			} catch (Exception $e) {
+				throw new Exception("Error inserting user registration: " . $e->getMessage());
+			}
+
+		}
 
 		/**
 		 * Delete a user registration by user_id and course_id

@@ -33,6 +33,7 @@
 					);
 
 					return $student;
+
 				}
 
 			} else {
@@ -87,10 +88,10 @@
 
 				$sql = "INSERT INTO students (username, password, name, email) VALUES (
 
-					'". $object->getUsername() . "',
+					'" . $object->getUsername() . "',
 					'" . $object->getPassword() . "',
-					'" . $object->getName() . "',
-					'" . $object->getEmail() . "'
+					'" . $object->getName() 	. "',
+					'" . $object->getEmail() 	. "'
 
 				)";
 
@@ -111,12 +112,22 @@
 
 		public function deleteID($id) {
 
-			$sql = "DELETE FROM students WHERE username = $id";
+			try {
 
-			$conn = conn_imp::getInstance();
-			$conn->connect();
+				$sql = "DELETE FROM students WHERE username = $id";
 
-			$conn->update($sql);
+				$conn = conn_imp::getInstance();
+				$conn->connect();
+
+				if ($conn->update($sql) === false) {
+					throw new Exception("Insert failed → " . $conn->getError());
+				}
+
+				return true;
+
+			} catch (Exception $e) {
+				throw new Exception("Error deleting student: " . $e->getMessage());
+			}
 
 		}
 

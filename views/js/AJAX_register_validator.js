@@ -25,7 +25,8 @@ function validateUsername() {
 			const username = this.value;
 
 			fetch(`/controllers/input_controller.php?action=userRegister&value1=${encodeURIComponent(username)}`, {
-				headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+				headers: { 'X-Requested-With': 'XMLHttpRequest' }
+			})
 
 				.then(response => response.json())
 				.then(data => {

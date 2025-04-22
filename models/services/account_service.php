@@ -26,10 +26,12 @@
 
 				// create student obj
 				$newStudent = new Student(
+
 					$username,
 					password_hash($password, PASSWORD_DEFAULT),
 					$nickname,
 					$email
+
 				);
 
 				// insert student into database

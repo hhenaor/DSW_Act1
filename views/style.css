@@ -3,6 +3,8 @@
 	--mhov: #4592fd;
 	--secn: #07ff70;
 	--shov: #7dffb3;
+	--gray: #555;
+	--ghov: #666;
 }
 
 * {
@@ -36,7 +38,7 @@
 
 	}
 
-	.btn-sec {
+	.btn-sec, button.btn-sec {
 
 		padding: 0.5em;
 
@@ -52,6 +54,26 @@
 		cursor: pointer;
 
 		&:hover { background-color: var(--shov); }
+
+	}
+
+	.btn-gry, button.btn-gry {
+
+		padding: 0.5em;
+
+		color: #fff;
+		background-color: var(--gray);
+
+		border: none;
+		border-radius: 0.5em;
+
+		font-size: large;
+		text-decoration: none;
+		font-weight: 500;
+
+		cursor: pointer;
+
+		&:hover { background-color: var(--ghov); }
 
 	}
 
@@ -121,6 +143,67 @@
 }
 
 html {
+
+	/* overlay div */
+	#overlay {
+
+		display: none;
+		top: 0;
+		left: 0;
+
+		position: fixed;
+		align-items: center;
+
+		width: 100%;
+		height: 100%;
+
+		background-color: rgba(0, 0, 0, 0.5);
+
+		z-index: 9999;
+
+		justify-content: center;
+
+		div {
+
+			padding: 1em;
+
+			align-items: center;
+
+			width: fit-content;
+
+			border-radius: 0.5em;
+
+			background-color: #fff;
+			text-align: center;
+
+			* {margin: 0.5em;}
+
+			small {
+				font-size: xx-small;
+				color: #ccc;
+			}
+
+			.modal-inputs {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 0.5em;
+			}
+
+			button {
+				width: 25%;
+			}
+
+		}
+
+		h1 {
+
+			color: #fff;
+			font-size: xx-large;
+			text-align: center;
+
+		}
+
+	}
 
 	body {
 
@@ -196,6 +279,30 @@ html {
 
 					border: solid 1px #ccc;
 					border-radius: 0.5em;
+
+					div.cont {
+
+						width: 100%;
+						height: 100%;
+
+						div {
+
+							flex-direction: row;
+							align-items: center;
+							justify-content: flex-end;
+
+							img {
+								width: 24px;
+								height: 24px;
+							}
+
+						}
+
+						button {
+							display: flex;
+						}
+
+					}
 
 				}
 
