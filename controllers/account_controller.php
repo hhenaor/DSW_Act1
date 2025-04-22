@@ -8,7 +8,7 @@
 	require_once '../models/services/account_service.php';
 
 	// * only if on process of login
-	if ( !isset($_SESSION['user_id']) ) {
+	if ( isset($_SESSION['user_id']) ) {
 
 		class AccountController {
 
@@ -44,7 +44,10 @@
 						);
 
 						if ( $result !== true ) {
+
 							$_SESSION['error'] = $result;
+							unset($_SESSION['verified']);
+
 						}
 
 						header("Location: ../checkpoint.php");
@@ -56,6 +59,7 @@
 					if ( isset($_SESSION['error']) ) {
 						header("Location: ../login.php");
 					}
+
 					return;
 
 				} catch (Exception $e) {
@@ -79,6 +83,8 @@
 					if ( $response !== true ) {
 						$_SESSION['error'] = $response;
 					}
+
+					$_SESSION['verified'] = true;
 
 					// set nickname
 					$response = $this->account_service->setNickname(

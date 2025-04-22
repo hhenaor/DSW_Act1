@@ -82,8 +82,6 @@
 				$result = $this->studentRepo->queryID($username);
 				if ( $result == null ) {
 					return "Username not found.";
-				} else {
-					$_SESSION['user_id'] = $result->getUsername();
 				}
 
 				return true;
@@ -101,12 +99,14 @@
 
 			try {
 
-				// sanitize inputs
+				// sanitize username only
 				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
-				$nickname = htmlspecialchars($nickname, ENT_QUOTES, 'UTF-8');
 
-				// check if nickname is valid (only alphanumeric, 4-30 chars)
-				if ( preg_match('/^[A-Za-z0-9]{4,30}$/', $nickname) ) {
+				// check if nickname is valid (alphanumeric, spaces and basic symbols, 4-30 chars)
+				if ( preg_match('/^[A-Za-z0-9\s!@\-]{4,30}$/', $nickname) ) {
+
+					// sanitize nickname after validation
+					$nickname = htmlspecialchars($nickname, ENT_QUOTES, 'UTF-8');
 
 					// get student and set nickname
 					$student = $this->studentRepo->queryID($username);

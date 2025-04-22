@@ -77,7 +77,7 @@
 						<label for="nickname_form">User nickname</label>
 					</div>
 					<input type="nickname" id="nickname_form" name="nickname_form" minlength="4" maxlength="30" placeholder="epic joe 24" required>
-					<small id="nickname_info">Min 4 characters but less than 30 / You can change it later!</small>
+					<small id="nickname_info">Min 4 characters but less than 30 / Only letters, numbers, spaces, !, @, and - allowed / You can change it later!</small>
 				</div>
 
 				<button class="btn-man" type="submit">Verify</button>

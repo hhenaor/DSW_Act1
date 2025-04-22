@@ -97,7 +97,7 @@
 
 				try {
 
-					// validate inputs
+					// validate username
 					$response = $this->validation_service->findUsername(
 						$_POST['username_form']
 					);
@@ -115,6 +115,9 @@
 					if ( $response !== true ) {
 						$_SESSION['error'] = $response;
 					}
+
+					// Set user session
+					$_SESSION['user_id'] = $_POST['username_form'];
 
 					// get username
 					$userID = $this->account_service->setAccountID(

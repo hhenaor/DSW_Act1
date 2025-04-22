@@ -173,7 +173,6 @@
 
 				// sanitize inputs
 				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
-				$usercode = htmlspecialchars($usercode, ENT_QUOTES, 'UTF-8');
 
 				// get student code
 				$code = $this->userStatusRepo->queryID($username);
