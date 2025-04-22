@@ -18,10 +18,13 @@
 			try {
 
 				// check if user is logged in
-				$isPublic = !isset($_SESSION['user_id']);
+				$page = !isset($_SESSION['user_id']) ? 'login' : false;
+
+				// check if user is logged in and verified
+				$page = basename($_SERVER['PHP_SELF']) === 'index.php' && isset($_SESSION['user_id']) ? 'dashboard' : $page;
 
 				// get navigation elements from service
-				$navElements = $this->header_navigation_service->getNavigationState($isPublic);
+				$navElements = $this->header_navigation_service->getNavigationState($page);
 
 				return $navElements;
 
