@@ -51,13 +51,23 @@
 
 						}
 
-						$JSONresponse['success'] = true;
-						$JSONresponse['title'] = "Course check successfully!";
-						$JSONresponse['message'] = "Continue with note rule creation.";
-
 						// create course
+						$response = $this->dashboard_service->createCourse($data, $_SESSION['user_id']);
 
-					// ! this should make onlly note rule but to reduce request it does everything
+						if ($response !== true) {
+
+							$JSONresponse['success'] = false;
+							$JSONresponse['title'] = $response;
+							$JSONresponse['message'] = "Server error, sorry for the inconvenience.";
+							echo json_encode($JSONresponse);
+							return;
+
+						}
+
+						$JSONresponse['success'] = true;
+						$JSONresponse['title'] = "Course created successfully!";
+						$JSONresponse['message'] = "Now link your course with an note rule.";
+
 					} else if ( $action === 'createNoteRule' ) {
 
 						// validate inputs
@@ -103,19 +113,6 @@
 						// $JSONresponse['title'] = "Note Rule created successfully!";
 						// $JSONresponse['message'] = "Dashboard will be updated in a few moments";
 
-						// create course
-						$response = $this->dashboard_service->createCourse($data);
-
-						if ($response !== true) {
-
-							$JSONresponse['success'] = false;
-							$JSONresponse['title'] = $response;
-							$JSONresponse['message'] = "Server error, sorry for the inconvenience.";
-							echo json_encode($JSONresponse);
-							return;
-
-						}
-
 						// link course
 						$response = $this->dashboard_service->createUserRegistration($_SESSION['user_id'], $data['course_id']);
 
@@ -132,6 +129,10 @@
 						$JSONresponse['success'] = true;
 						$JSONresponse['title'] = "User and course created and linked successfully!";
 						$JSONresponse['message'] = "Dashboard will be updated in a few moments";
+
+					} else if ( $action === 'accountFetch' ) {
+
+						// get courses
 
 					} else {
 

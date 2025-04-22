@@ -26,6 +26,7 @@
 					$course = new course(
 
 						$row['course_id'],
+						$row['user_id'],
 						$row['name'],
 						$row['full_name'],
 						$row['description'],
@@ -70,6 +71,7 @@
 					$course = new course(
 
 						$row['course_id'],
+						$row['user_id'],
 						$row['name'],
 						$row['full_name'],
 						$row['description'],
@@ -98,8 +100,9 @@
 
 			try {
 
-				$sql = "INSERT INTO courses (name, full_name, description, knowledge_area, career, credits, thematic_content, semester, professor) VALUES (
+				$sql = "INSERT INTO courses (user_id, name, full_name, description, knowledge_area, career, credits, thematic_content, semester, professor) VALUES (
 
+					'" . $object->getUserID() . "',
 					'" . $object->getName() . "',
 					'" . $object->getFullName() . "',
 					'" . $object->getDescription() . "',
@@ -141,6 +144,7 @@
 		public function update($object) {
 
 			$sql = "UPDATE courses SET
+			name = '" . $object->getUserID() . "',
 			name = '" . $object->getName() . "',
 			full_name = '" . $object->getFullName() . "',
 			description = '" . $object->getDescription() . "',

@@ -39,6 +39,7 @@ document.getElementById('add-course-btn').addEventListener('click', async () => 
 
 		// send AJAX
 		const response = await AJAXRequest("Course work...", 'createCourse', {
+
 			name: courseData[0],
 			full_name: courseData[1],
 			description: courseData[2],
@@ -48,72 +49,14 @@ document.getElementById('add-course-btn').addEventListener('click', async () => 
 			thematic_content: courseData[6],
 			semester: courseData[7],
 			professor: courseData[8]
+
 		});
 
 		// check if success
 		if (response.success) {
 
 			// show success message
-			// showModal("Success", response.title, response.message);
-
-
-			// show modal with inputs to create note rules
-			const ruleData = await showModalMultiInput(
-
-				'Add Note Rule',
-
-				'Enter note rule info<br>What is a note rule?<br><br>'+
-				'These are rules linked to your courses made to know:<br>'+
-				'- The minimum possible grade (Starting from 0.00)<br>'+
-				'- Maximum possible grade (Up to 999.99)<br>'+
-				'- How many grades your course allows (Maximum of 100)<br>',
-
-				'<span style="color: red;"> You can\'t edit this later!</span><br>'+
-				'<span style="color: darkblue;"> Note rule will be linked to the created course.</span>',
-				3,
-				['Name (Course College ID)', 'Number of grades (Max 100)', 'Maximum grade (999.99)']
-
-			);
-
-			if (ruleData) {
-
-				// show success message// send AJAX
-				// * create course, note rule and link
-				const response = await AJAXRequest("Note rule work...", 'createNoteRule', {
-
-					course_id: ruleData[0], // for note rule
-					note_count: ruleData[1],
-					max_value: ruleData[2],
-					name: courseData[0],
-					full_name: courseData[1],
-					description: courseData[2],
-					knowledge_area: courseData[3],
-					career: courseData[4],
-					credits: courseData[5],
-					thematic_content: courseData[6],
-					semester: courseData[7],
-					professor: courseData[8]
-
-				});
-
-				// check if success
-				if (response.success) {
-
-					// show success message
-					showModal("Success", response.title, response.message);
-
-					// refreshDashboard();
-
-				} else {
-
-					// show error message
-					showModal("Error", response.title, response.message);
-
-				}
-
-			}
-
-			// refreshDashboard();
+			showModal("Success", response.title, response.message);
 
 		} else {
 
@@ -126,10 +69,57 @@ document.getElementById('add-course-btn').addEventListener('click', async () => 
 
 });
 
-// document.getElementById('add-note_rule-btn').addEventListener('click', async () => {
+document.getElementById('add-note_rule-btn').addEventListener('click', async () => {
+
+	// show modal with inputs to create note rules
+	const ruleData = await showModalMultiInput(
+
+		'Add Note Rule',
+
+		'Enter note rule info<br>What is a note rule?<br><br>'+
+		'These are rules linked to your courses made to know:<br>'+
+		'- The minimum possible grade (Starting from 0.00)<br>'+
+		'- Maximum possible grade (Up to 999.99)<br>'+
+		'- How many grades your course allows (Maximum of 100)<br>',
+
+		'<span style="color: red;"> You can\'t edit this later!</span><br>'+
+		'<span style="color: darkblue;"> Note rule will be linked to the created course.</span>',
+		3,
+		['Your Course ID', 'Number of grades (Max 100)', 'Maximum grade (999.99)']
+
+	);
+
+	if (ruleData) {
+
+		// show success message// send AJAX
+		// * create course, note rule and link
+		const response = await AJAXRequest("Note rule work...", 'createNoteRule', {
+
+			course_id: ruleData[0], // for note rule
+			note_count: ruleData[1],
+			max_value: ruleData[2],
+
+		});
+
+		// check if success
+		if (response.success) {
+
+			// show success message
+			showModal("Success", response.title, response.message);
+
+			// refreshDashboard();
+
+		} else {
+
+			// show error message
+			showModal("Error", response.title, response.message);
+
+		}
+
+	}
 
 
-// });
+});
 
 // > FETCHS AND AJAX FUNCTIONS < //
 

@@ -77,6 +77,23 @@
 
 		</div>
 
+		<div class="dash-bor">
+
+			<div class="row cont">
+				<h2>Note rules</h2>
+				<div class="row">
+					<button class="btn-gry" id="add-note_rule-btn"> <img src="views/svg/plus.svg" alt="" srcset=""> Add note rule</button>
+				</div>
+			</div>
+
+			<p id="total-courses">0 note rules.</p>
+
+			<div id="course-tab">
+
+			</div>
+
+		</div>
+
 		<div class="dash-bor errs">
 
 			<h2>User settings</h2>

@@ -120,7 +120,7 @@
 		// - create course
 		// * needs JSON
 		// ! return string or bool
-		public function createCourse($data) {
+		public function createCourse($data, $user_id) {
 
 			try {
 
@@ -132,6 +132,7 @@
 				// create course obj
 				$newCourse = new Course(
 
+					$user_id,
 					$data['name'],
 					$data['full_name'],
 					$data['description'],

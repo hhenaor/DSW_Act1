@@ -27,10 +27,24 @@ DROP TABLE IF EXISTS `courses`, `students`, `note_rules`, `note_registers`, `use
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `students`
+-- * Registro de los estudiantes, que pueden ser estudiantes
+CREATE TABLE `students` (
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  PRIMARY KEY (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `courses`
 -- * Registro de los cursos disponibles, creados por usuarios
 CREATE TABLE `courses` (
   `course_id` int(255) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `full_name` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
@@ -40,20 +54,11 @@ CREATE TABLE `courses` (
   `thematic_content` varchar(255) NOT NULL,
   `semester` varchar(255) NOT NULL,
   `professor` varchar(255) NOT NULL,
-  PRIMARY KEY (`course_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `students`
--- * Registro de los estudiantes, que pueden ser estudiantes
-CREATE TABLE `students` (
-  `username` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  PRIMARY KEY (`username`)
+  PRIMARY KEY (`course_id`),
+  INDEX `idx_fk_user_id` (`user_id`),
+  CONSTRAINT `fk_courses_students`
+    FOREIGN KEY (`user_id`) REFERENCES `students` (`username`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
