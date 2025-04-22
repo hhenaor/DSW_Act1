@@ -158,7 +158,7 @@ html {
 
 			div {
 
-				width: 100%;
+				width: calc(100% - 4em);
 
 				form {
 
@@ -183,10 +183,19 @@ html {
 							margin-right: 0.5em;
 						}
 
-
 					}
 
 					button {margin-top: 1em;}
+
+				}
+
+				&.dash-bor {
+
+					margin: 1em;
+					padding: 1em;
+
+					border: solid 1px #ccc;
+					border-radius: 0.5em;
 
 				}
 

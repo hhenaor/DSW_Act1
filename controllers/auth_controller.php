@@ -8,8 +8,8 @@
 	require_once '../models/services/account_service.php';
 	require_once '../models/services/verification_service.php';
 
-	// * only if controller is called on login/sign up submit
-	if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+	// * only if controller is called on login/sign up submit or if header navigation is clicked
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' || (isset($_SERVER['HTTP_X_NAVIGATION']) && $_SERVER['HTTP_X_NAVIGATION'] === 'header-nav')) {
 
 		class AuthController {
 
@@ -142,6 +142,20 @@
 
 			}
 
+			// - when trying to logout
+			// ! returns redirection
+			public function logout() {
+
+				// destroy session
+				session_destroy();
+
+				// redirect to login page
+				$_SESSION['success'] = "Logout successful!";
+				header("Location: ../login.php");
+				return;
+
+			}
+
 		}
 
 		// create controller and get action
@@ -153,7 +167,7 @@
 		} else if ( $action === 'login' ) {
 			$controller->login();
 		} else if ( $action === 'logout' ) {
-			// $controller->a();
+			$controller->logout();
 		} else {
 
 			$_SESSION['error'] = "Invalid request.";

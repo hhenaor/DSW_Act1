@@ -32,9 +32,10 @@
 						$_SESSION['user_id']
 					);
 
-					if ( $response == '0' ) {
+					if ( $response == 0 ) {
 						$_SESSION['error'] = $response;
-					} else if ( $response == '1' ) {
+					} else if ( $response == 1 ) {
+						$_SESSION['verified'] = true;
 						header("Location: ../dashboard.php");
 					} else if ( preg_match('/^[A-Za-z0-9]{6}$/', $response) ) {
 

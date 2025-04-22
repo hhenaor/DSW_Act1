@@ -7,7 +7,7 @@
 	require_once '../models/repositories/Icrud_user_status_imp.php';
 	require_once '../models/repositories/Icrud_student_imp.php';
 
-	// use MailSender via composer
+	// * use MailSender via composer
 
 	use MailerSend\MailerSend;
 	use MailerSend\Helpers\Builder\Recipient;
