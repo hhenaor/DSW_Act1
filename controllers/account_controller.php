@@ -1,180 +1,122 @@
 <?php
 
+	// * controller for account verification
+
 	session_start();
 
 	require_once '../models/services/verification_service.php';
-
-	// * method focus on login process
+	require_once '../models/services/account_service.php';
 
 	// * only if on process of login
-	if ( isset($_SESSION['user_id']) === true ) {
+	if ( !isset($_SESSION['user_id']) ) {
 
 		class AccountController {
 
 			private $verification_service;
+			private $account_service;
 
 			public function __construct() {
 				$this->verification_service = new VerificationService();
+				$this->account_service = new AccountService();
 			}
 
-			// check if user is ban 0, verified 1, not verified [A-Za-z0-9]{6}, else error
-			public function getUserStatus() {
+			// - when trying login
+			// * ban = 0, verified = 1, not verified [A-Za-z0-9]{6}
+			// ! returns redirection
+			public function checkVerificationStatus() {
 
 				try {
 
-					return $this->verification_service->getVerificationStatus($_SESSION['user_id']);
+					// get user status
+					$response = $this->verification_service->getVerificationStatus(
+						$_SESSION['user_id']
+					);
 
-				} catch (Exception $e) {
+					if ( $response == '0' ) {
+						$_SESSION['error'] = $response;
+					} else if ( $response == '1' ) {
+						header("Location: ../dashboard.php");
+					} else if ( preg_match('/^[A-Za-z0-9]{6}$/', $response) ) {
 
-					return $e;
+						// send via email verification code
+						$result = $this->verification_service->sendVerificationMail(
+							$_SESSION['user_id']
+						);
 
-				}
+						if ( $result !== true ) {
+							$_SESSION['error'] = $result;
+						}
 
-			}
+						header("Location: ../checkpoint.php");
 
-			// send via email verification code
-			public function sendVerificationCode() {
+					} else {
+						$_SESSION['error'] = "Invalid account status! Please contact support.";
+					}
 
-				try {
-
-					return $this->verification_service->sendVerificationMail($_SESSION['user_id']);
-
-				} catch (Exception $e) {
-
-					return $e;
-
-				}
-
-			}
-
-			// check if code is correct
-			public function checkVerificationCode() {
-
-				try {
-
-					return $this->verification_service->checkVerificationCode($_SESSION['user_id'], $_POST['usercode_form']);
-
-				} catch (Exception $e) {
-
-					return $e;
-
-				}
-
-			}
-
-			// set nickname
-			public function setNickname() {
-
-				try {
-
-					return $this->verification_service->setNickname($_SESSION['user_id'], $_POST['nickname_form']);
-
-				} catch (Exception $e) {
-
-					return $e;
-
-				}
-
-			}
-
-		}
-
-		$accountController = new AccountController();
-
-		if ( !empty($_GET['action']) && $_GET['action'] == "verify" ) {
-
-			try {
-
-			    $statusCode = $accountController->checkVerificationCode();
-
-			    if ($statusCode !== true) {
-
-			        $_SESSION['error'] = $statusCode;
-			        header("Location: ../checkpoint.php");
-			        return;
-
-			    }
-
-			    $statusNick = $accountController->setNickname();
-
-			    if ($statusNick !== true) {
-
-			        $_SESSION['error'] = $statusNick;
-			        header("Location: ../checkpoint.php");
-			        return;
-
-			    }
-
-				// header("Location: ../dashboard.php");
-
-				$_SESSION['success'] = "GO TO DASHBOARD.";
-				header("Location: ../login.php");
-
-				return;
-
-			} catch (Exception $e) {
-
-			    $_SESSION['error'] = "An error occurred: " . $e->getMessage();
-			    header("Location: ../checkpoint.php");
-			    return;
-
-			}
-
-		}
-
-		try {
-
-			$status = $accountController->getUserStatus();
-
-		} catch (Exception $e) {
-
-			$_SESSION['error'] = "An error occurred: " . $e->getMessage();
-			header("Location: ../login.php");
-		}
-
-		if ($status === '0') {
-
-			$_SESSION['error'] = "Your account has been banned.";
-			header("Location: ../login.php");
-
-		} else if ($status === '1') {
-
-			// header("Location: ../dashboard.php");
-
-			$_SESSION['success'] = "GO TO DASHBOARD.";
-			header("Location: ../login.php");
-
-		} else if (preg_match('/^[A-Za-z0-9]{6}$/', $status)) {
-
-			try {
-
-				$result = $accountController->sendVerificationCode();
-
-				if (filter_var($result, FILTER_VALIDATE_EMAIL)) {
-
-					$_SESSION['special'] = $result;
-
-				} else {
-
-					// TODO fix uncatched exception
-					$_SESSION['error'] = "CATASTROPHIC ERROR: API KEY RELATED.";
-					header("Location: ../login.php");
+					if ( isset($_SESSION['error']) ) {
+						header("Location: ../login.php");
+					}
 					return;
 
+				} catch (Exception $e) {
+					return $e;
 				}
-
-			} catch (Exception $e) {
-
-				$_SESSION['error'] = "An error occurred: " . $e->getMessage();
-				header("Location: ../login.php");
 
 			}
 
-			header("Location: ../checkpoint.php");
+			// - check if code is correct
+			// ! retuns redirection
+			public function validateInputs() {
 
+				try {
+
+					// check if code is valid
+					$response = $this->verification_service->checkVerificationCode(
+						$_SESSION['user_id'],
+						$_POST['usercode_form']
+					);
+
+					if ( $response !== true ) {
+						$_SESSION['error'] = $response;
+					}
+
+					// set nickname
+					$response = $this->account_service->setNickname(
+						$_SESSION['user_id'],
+						$_POST['nickname_form']
+					);
+
+					if ( $response !== true ) {
+						$_SESSION['error'] = $response;
+					}
+
+					if ( isset($_SESSION['error']) ) {
+						header("Location: ../checkpoint.php");
+					}
+
+					header("Location: ../dashboard.php");
+
+					return;
+
+				} catch (Exception $e) {
+					return $e;
+				}
+
+			}
+
+		}
+
+		// create controller and get action
+		$controller = new AccountController();
+		$action = $_GET['action'] ?? null;
+
+		if ( $action === 'verification' ) {
+			$controller->checkVerificationStatus();
+		} else if ( $action === 'verify' ) {
+			$controller->validateInputs();
 		} else {
 
-			$_SESSION['error'] = "Invalid account status! Please contact support.";
+			$_SESSION['error'] = "Invalid request.";
 			header("Location: ../login.php");
 
 		}

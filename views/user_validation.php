@@ -1,3 +1,11 @@
+<!-- An incrusted PHP script that don't violate the MVC pattern -->
+<?php
+
+	require_once 'controllers/validation_middleware_controller.php';
+	ValidationMiddleware::validateAccess();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,26 +34,27 @@
 
 				<h2>Verification process</h2>
 
-				<!-- An incrusted PHP script to show errors, that don't violate the MVC pattern -->
-				<?php session_start(); if(isset($_SESSION['user_id'])): ?>
+				<!-- An incrusted PHP script that don't violate the MVC pattern -->
+				<?php if( isset( $_SESSION['user_id'] ) ): ?>
 					<div class="note col">
 						<h3>Notice:</h3>
-						<?php echo "Hi, " . htmlspecialchars($_SESSION['user_id']) .".<br>A verification code was send to your linked email (".$_SESSION['special']."). To start using mpNotes services enter the code in the verification field."; ?>
+						<p><?php echo "Hi, " . htmlspecialchars($_SESSION['user_id']) .".<br>A verification code was send to your linked email.<br> To start using mpNotes services enter the code in the verification field."; ?></p>
 					</div>
 				<?php endif; ?>
 
-				<?php if(isset($_SESSION['error'])): ?>
+				<?php if( isset( $_SESSION['error'] ) ): ?>
 					<div class="errs col">
 						<h3>Errors:</h3>
 						<ul>
 							<?php
-							$errors = explode(", ", $_SESSION['error']);
-							foreach($errors as $error): ?>
+								$errors = is_array( $_SESSION['error'] ) ? $_SESSION['error'] : [$_SESSION['error']];
+								foreach($errors as $error):
+							?>
 								<li><?php echo htmlspecialchars($error); ?></li>
 							<?php endforeach; ?>
 						</ul>
 					</div>
-				<?php unset($_SESSION['error']); endif; ?>
+				<?php unset( $_SESSION['error'] ); endif; ?>
 
 				<div class="col">
 					<div class="row">
@@ -68,7 +77,7 @@
 						<label for="nickname_form">User nickname</label>
 					</div>
 					<input type="nickname" id="nickname_form" name="nickname_form" minlength="4" maxlength="30" placeholder="epic joe 24" required>
-					<small id="nickname_info">Min 4 characters</small>
+					<small id="nickname_info">Min 4 characters but less than 30 / You can change it later!</small>
 				</div>
 
 				<button class="btn-man" type="submit">Verify</button>

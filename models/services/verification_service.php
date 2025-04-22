@@ -1,5 +1,7 @@
 <?php
 
+	// * method for verification process only
+
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
 	require_once '../models/repositories/Icrud_user_status_imp.php';
@@ -18,63 +20,120 @@
 		private $studentRepo;
 
 		public function __construct() {
+
 			$this->userStatusRepo = new Icrud_user_status_imp();
 			$this->studentRepo = new Icrud_student_imp();
+			$this->loadEnvVariables();
+
 		}
 
-		// create verification code
-		public function createVerification($user) {
+		// - create env loader
+		// * needs nothing
+		// ! returns bool
+		public function loadEnvVariables() {
 
-			// generate random code
-			$code = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 6);
+			$envFile = __DIR__ . '/../../.env';
 
-			// create user status object
-			$userStatus = new UserStatus($user->getUsername(), $code);
+			if (file_exists($envFile)) {
 
-			// insert user status into database
+				$lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+				foreach ($lines as $line) {
+
+					if (strpos($line, '=') !== false) {
+
+						list($name, $value) = explode('=', $line, 2);
+						$name = trim($name);
+						$value = trim(str_replace('"', '', $value));
+						putenv("$name=$value");
+
+					}
+
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		// - create verification code
+		// * needs string
+		// ! returns a bool
+		public function createVerification($username) {
+
 			try {
 
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+
+				// generate random code
+				$code = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 6);
+
+				// get user
+				$username = $this->studentRepo->queryID($username);
+				if ( $username == null ) {
+					return "User not found.";
+				}
+
+				// create user status object
+				$userStatus = new UserStatus($username->getUsername(), $code);
+
+				// insert user status into database
 				$this->userStatusRepo->insert($userStatus);
 
+				return true;
+
 			} catch (Exception $e) {
-
 				throw new Exception("Error creating verification code: " . $e->getMessage());
-
 			}
 
 		}
 
-		// get verification status
-		public function getVerificationStatus($user) {
+		// - create verification code
+		// * needs string
+		// ! returns string
+		public function getVerificationStatus($username) {
 
 			try {
 
-				$result = $this->userStatusRepo->queryID($user);
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+
+				// get user
+				$result = $this->userStatusRepo->queryID($username);
 				return $result->getStatus();
 
 			} catch (Exception $e) {
-
-				throw new Exception("Error getting verification status: " . $e->getMessage());
-
+				return "Error getting verification status: " . $e->getMessage();
 			}
 
 		}
 
-		// send verification mail
-		public function sendVerificationMail($user) {
+		// - send verification mail via MailSender
+		// * needs string
+		// ! returns string
+		public function sendVerificationMail($username) {
 
 			try {
 
-				// - ADD API KEY HERE!!!!!!!!!
-				$mailersend = new MailerSend(['api_key' => ""]);
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+
+				// load env variables
+				$apiKey = getenv('MAILSEND_API_KEY');
+				$domainName = getenv('MAILERSEND_DOMAIN_NAME');
+
+				// create MailSender object
+				$mailersend = new MailerSend(['api_key' => $apiKey]);
 
 				// get student mail
-				$student = $this->studentRepo->queryID($user);
+				$student = $this->studentRepo->queryID($username);
 				$studentMail = $student->getEmail();
 				$studentUsername = $student->getUsername();
 
 				// get student code
-				$code = $this->userStatusRepo->queryID($user);
+				$code = $this->userStatusRepo->queryID($username);
 				$code = $code->getStatus();
 
 				$recipients = [
@@ -82,7 +141,7 @@
 				];
 
 				$email = (new EmailParams())
-					->setFrom('verification@test-69oxl5eev1kl785k.mlsender.net')
+					->setFrom('verification@' . $domainName)
 					->setFromName('mpNotes')
 					->setRecipients($recipients)
 					->setSubject('mpNotes Verification')
@@ -93,84 +152,52 @@
 
 					$mailersend->email->send($email);
 
+					return true;
+
 				} catch (MailerSendException  $e) {
-
-					throw new Exception("Error sending verification mail: " . $e->getMessage());
-
+					return "Error sending verification mail: " . $e->getMessage();
 				}
 
-				return $studentMail;
-
 			} catch (Exception $e) {
-
-				throw new Exception("Error sending verification mail: " . $e->getMessage());
-
+				return "Error sending verification mail: " . $e->getMessage();
 			}
 
 		}
 
-		// check verification code
-		public function checkVerificationCode($user, $inCode) {
+		// - check verification code
+		// * needs 2 strings
+		// ! returns string or bool
+		public function checkVerificationCode($username, $usercode) {
 
-			// get student code
-			$code = $this->userStatusRepo->queryID($user);
-			$code = $code->getStatus();
+			try {
 
-			$user = $this->studentRepo->queryID($user);
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+				$usercode = htmlspecialchars($usercode, ENT_QUOTES, 'UTF-8');
 
-			// check if code is valid
-			if ($code == $inCode) {
+				// get student code
+				$code = $this->userStatusRepo->queryID($username);
+				$code = $code->getStatus();
 
-				// update user status to verified 1
-				$codeStatus = new UserStatus($user->getUsername(), '1');
+				// get student
+				$username = $this->studentRepo->queryID($username);
 
-				try {
+				// check if code is valid
+				if ($code === $usercode) {
+
+					// update user status to verified 1
+					$codeStatus = new UserStatus($username->getUsername(), '1');
 
 					$this->userStatusRepo->update($codeStatus);
 
-				} catch (Exception $e) {
+					return true;
 
-					throw new Exception("Error updating user status: " . $e->getMessage());
-
+				} else {
+					return "Invalid verification code.";
 				}
 
-				return true;
-
-			} else {
-
-				return "Invalid verification code.";
-
-			}
-
-		}
-
-		// set new nickname
-		// ! move to account_service
-		public function setNickname($user, $nickname) {
-
-			// check if nickname is valid
-			if (preg_match('/^[A-Za-z0-9]{4,20}$/', $nickname)) {
-
-				// get student and set nickname
-				$student = $this->studentRepo->queryID($user);
-				$student->setName($nickname);
-
-				try {
-
-					$this->studentRepo->update($student);
-
-				} catch (Exception $e) {
-
-					throw new Exception("Error updating user nickname: " . $e->getMessage());
-
-				}
-
-				return true;
-
-			} else {
-
-				return "Invalid nickname.";
-
+			} catch (Exception $e) {
+				return "Error checking verification code: " . $e->getMessage();
 			}
 
 		}

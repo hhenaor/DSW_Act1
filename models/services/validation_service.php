@@ -1,8 +1,8 @@
 <?php
 
-	require_once '../models/repositories/Icrud_student_imp.php';
+	// * service for input validations also via AJAX
 
-	// * service focus on login/reegister data/input (AJAX) validations
+	require_once '../models/repositories/Icrud_student_imp.php';
 
 	class ValidationService {
 
@@ -12,9 +12,10 @@
 			$this->studentRepo = new Icrud_student_imp();
 		}
 
-		// * AJAX, log and sign
-
-		public function validateUsername($username) {
+		// - validates username format
+		// * needs string
+		// ! returns string or true
+		private function validateUsernameFormat($username) {
 
 			// Check if the username is empty or shorter than 4 char or larger than 15 chars
 			if ( strlen($username) < 4 || strlen($username) > 15 ) {
@@ -26,124 +27,174 @@
 				return "Username must start with a letter and can only contain letters (A-z) numbers (0-9) and underscores (_).";
 			}
 
+			return true;
+
+		}
+
+		// - checks if username is free
+		// * needs string
+		// ! returns string
+		public function existUsername($username) {
+
 			try {
 
-				if ( $this->studentRepo->queryID($username) == "Student not found" ) {
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+
+				// format validation
+				$result = $this->validateUsernameFormat($username);
+				if ($result !== true) {
+					return $result;
+				}
+
+				// Get student via username
+				$result = $this->studentRepo->queryID($username);
+				if ( $result == null ) {
 					return "Username is valid!";
 				} else {
 					return "Username already exists.";
 				}
 
 			} catch (Exception $e) {
-
 				return "Error validating username (" . $e->getMessage();
-
 			}
 
 		}
 
-		public function validateEmail($email) {
-			// Check if the email is empty or invalid
-			if ( empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
-				return "Email format is not valid.";
-			}
-
-			try {
-				// Get all students
-				$students = $this->studentRepo->selectAll();
-
-				// Search for existing email
-				foreach ( $students as $student ) {
-					if ( $student->getEmail() === $email ) {
-						return "Email already exists.";
-					}
-				}
-
-				// extra return if bucle fails
-				return "Email is valid!";
-
-			} catch (Exception $e) {
-				return "Email is valid!";
-			}
-
-		}
-
-		public function matchPasswords($pass1, $pass2) {
-			// Check if the passwords are empty or shorter than 8 char or larger than 30 chars
-			if (strlen($pass1) < 8 || strlen($pass1) > 30 || strlen($pass2) < 8 || strlen($pass2) > 30) {
-				return "Password is not valid. It must be between 8 and 30 characters.";
-			}
-
-			// Check if the passwords match
-			if ($pass1 !== $pass2) {
-				return "Passwords don't match.";
-			}
-
-			return "Passwords match!";
-		}
-
-		// * log
-
+		// - checks if username exists
+		// * needs string
+		// ! returns string
 		public function findUsername($username) {
 
-			// Check if the username is empty or shorter than 4 char or larger than 15 chars
-			if ( strlen($username) < 4 || strlen($username) > 15 ) {
-				return "Username is not valid. It must be between 4 and 15 characters.";
-			}
-
-			// Check if the username contains only letters, numbers, and underscores
-			if ( !preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $username) ) {
-				return "Username must start with a letter and can only contain letters (A-z) numbers (0-9) and underscores (_).";
-			}
-
 			try {
 
-				if ( $this->studentRepo->queryID($username) == "Student not found" ) {
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+
+				// format validation
+				$result = $this->validateUsernameFormat($username);
+				if ($result !== true) {
+					return $result;
+				}
+
+				// Get student via username
+				$result = $this->studentRepo->queryID($username);
+				if ( $result == null ) {
 					return "Username not found.";
 				} else {
 					return "Username found!";
 				}
 
 			} catch (Exception $e) {
-
 				return "Error validating username (" . $e->getMessage();
-
 			}
 
 		}
 
-		public function checkPassword($id, $pass) {
+		// - checks if email exists
+		// * needs string
+		// ! returns string
+		public function existEmail($email) {
 
 			try {
 
-				if ( $this->studentRepo->queryID($id) == "Student not found" ) {
-					return "Username not found.";
-				} else {
-					$student = $this->studentRepo->queryID($id);
-					return password_verify($pass, $student->getPassword()) ? "Password is valid!" : "Password is not valid.";
+				// sanitize inputs
+				$email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+				// Check if the email is empty or invalid
+				if ( empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+					return "Email format is not valid.";
 				}
 
+				// Get all students
+				$result = $this->studentRepo->selectAll();
+
+				if ( $result != null ) {
+
+					// Search for existing email
+					foreach ( $result as $student ) {
+
+						if ( $student->getEmail() === $email ) {
+							return "Email already exists.";
+						}
+
+					}
+
+				}
+
+				return "Email is valid!";
+
 			} catch (Exception $e) {
-
-				return "Error validating password (" . $e->getMessage();
-
+				return "Error validating email (" . $e->getMessage();
 			}
 
 		}
 
-		// * get user id for verification
+		// - validate matching passwords
+		// * needs 2 strings
+		// ! returns string
+		public function matchPasswords($pass1, $pass2) {
 
-		public function getUserID($username) {
+			// try {
 
-			try {
+				// Check if the password is empty or shorter than 8 characters
+				if ( empty($pass1) || strlen($pass1) < 8 ||  empty($pass2) || strlen($pass2) < 8 ) {
+					return "Passwords must be at least 8 characters long.";
+				}
 
-				return $this->studentRepo->queryID($username);
+				// Check if the passwords match
+				if ($pass1 !== $pass2) {
+					return "Passwords don't match.";
+				}
 
-			} catch (Exception $e) {
+				return "Passwords match!";
 
-				return "Error getting username (" . $e->getMessage();
+			// } catch (Exception $e) {
 
-			}
+			// 	return "Error validating passwords (" . $e->getMessage();
+
+			// }
+
+		}
+
+		// - validates all registration fields and returns array of results
+		// * needs 4 strings
+		// ! returns array of strings or bool
+		public function registerValidation($username, $email, $pass1, $pass2) {
+
+			// try {
+
+				// sanitize inputs
+				$username = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+				$email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+				$results = [];
+
+				$results['username'] = $this->existUsername($username);
+				$results['email'] = $this->existEmail($email);
+				$results['passwords'] = $this->matchPasswords($pass1, $pass2);
+
+				// Remove entries containing "!" from results
+				foreach ($results as $key => $value) {
+
+					if (strpos($value, '!') !== false) {
+						unset($results[$key]);
+					}
+
+				}
+
+				// return true if no error
+				if (count($results) === 0) {
+					return true;
+				}
+
+				return $results;
+
+			// } catch (Exception $e) {
+
+			// 	return "Error validating fields (" . $e->getMessage();
+
+			// }
 
 		}
 

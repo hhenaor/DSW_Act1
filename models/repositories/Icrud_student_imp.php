@@ -20,17 +20,23 @@
 			}
 
 			if ( $result->num_rows > 0 ) {
+
 				while ( $row = $result->fetch_assoc() ) {
+
 					$student = new student(
+
 						$row['username'],
 						$row['password'],
 						$row['name'],
 						$row['email']
+
 					);
+
 					return $student;
 				}
+
 			} else {
-				return "Student not found";
+				return null;
 			}
 
 		}
@@ -51,35 +57,55 @@
 			$students = array();
 
 			if ( $result->num_rows > 0 ) {
+
 				while ( $row = $result->fetch_assoc() ) {
+
 					$student = new student(
+
 						$row['username'],
 						$row['password'],
 						$row['name'],
 						$row['email']
+
 					);
+
 					array_push($students, $student);
+
 				}
+
 				return $students;
+
 			} else {
-				throw new Exception("No students found");
+				return null;
 			}
 
 		}
 
 		public function insert($object) {
 
-			$sql = "INSERT INTO students (username, password, name, email) VALUES (
-			'". $object->getUsername() . "',
-			'" . $object->getPassword() . "',
-			'" . $object->getName() . "',
-			'" . $object->getEmail() . "'
-			)";
+			try {
 
-			$conn = conn_imp::getInstance();
-			$conn->connect();
+				$sql = "INSERT INTO students (username, password, name, email) VALUES (
 
-			$conn->update($sql);
+					'". $object->getUsername() . "',
+					'" . $object->getPassword() . "',
+					'" . $object->getName() . "',
+					'" . $object->getEmail() . "'
+
+				)";
+
+				$conn = conn_imp::getInstance();
+				$conn->connect();
+
+				if ($conn->update($sql) === false) {
+					throw new Exception("Insert failed → " . $conn->getError());
+				}
+
+				return true;
+
+			} catch (Exception $e) {
+				throw new Exception("Error inserting student: " . $e->getMessage());
+			}
 
 		}
 

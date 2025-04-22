@@ -24,34 +24,25 @@ function validateUsername() {
 		timeout = setTimeout(() => {
 			const username = this.value;
 
-			if ((usernameInput.value).length < 1) {
+			fetch(`/controllers/input_controller.php?action=userRegister&value1=${encodeURIComponent(username)}`, {
+				headers: { 'X-Requested-With': 'XMLHttpRequest' } })
 
-				usernameInfo.textContent = 'Please enter an username.';
-				usernameInfo.style.color = '#f44336';
+				.then(response => response.json())
+				.then(data => {
 
-			} else {
+					let message = data.message || data;
+					usernameInfo.textContent = message;
 
-				fetch(`/controllers/input_controller.php?value=${encodeURIComponent(username)}&action=user`, {
-					headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-
-					.then(response => response.json())
-					.then(data => {
-
-						let message = data.message || data;
-						usernameInfo.textContent = message;
-
-						usernameInfo.style.color = '#f44336';
-						if (message.includes('!')) {
-							usernameInfo.style.color = '#4CAF50';
-						}
-					})
-					.catch(error => {
-						usernameInfo.textContent = 'Error validating username.';
-						usernameInfo.style.color = '#f44336';
-						console.error('Error:', error);
-					});
-
-			}
+					usernameInfo.style.color = '#f44336';
+					if (message.includes('!')) {
+						usernameInfo.style.color = '#4CAF50';
+					}
+				})
+				.catch(error => {
+					usernameInfo.textContent = 'Error validating username.';
+					usernameInfo.style.color = '#f44336';
+					console.error('Error:', error);
+				});
 
 		}, 500);
 	});
@@ -70,7 +61,7 @@ function validateEmail() {
 
 		} else {
 
-			fetch(`/controllers/input_controller.php?value=${encodeURIComponent(email)}&action=email`, {
+			fetch(`/controllers/input_controller.php?action=email&value1=${encodeURIComponent(email)}`, {
 				headers: { 'X-Requested-With': 'XMLHttpRequest' } })
 				.then(response => response.json())
 				.then(data => {
@@ -105,7 +96,7 @@ function validatePasswords() {
 			passwordInfo.textContent = 'A password input is missing.';
 			passwordInfo.style.color = '#f44336';
 		} else {
-			fetch(`/controllers/input_controller.php?action=pass&pass1=${encodeURIComponent(password1)}&pass2=${encodeURIComponent(password2)}`, {
+			fetch(`/controllers/input_controller.php?action=pass&value1=${encodeURIComponent(password1)}&value2=${encodeURIComponent(password2)}`, {
 				headers: { 'X-Requested-With': 'XMLHttpRequest' } })
 				.then(response => response.json())
 				.then(data => {

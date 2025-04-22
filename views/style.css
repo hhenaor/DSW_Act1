@@ -93,6 +93,10 @@
 
 		font-weight: 500;
 
+		p {
+			color: #f00;
+		}
+
 	}
 
 	.note {
@@ -108,6 +112,10 @@
 		background-color: #ccf;
 
 		font-weight: 500;
+
+		p {
+			color: #00f;
+		}
 	}
 
 }
