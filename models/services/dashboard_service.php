@@ -132,6 +132,7 @@
 				// create course obj
 				$newCourse = new Course(
 
+					null,
 					$user_id,
 					$data['name'],
 					$data['full_name'],
@@ -152,6 +153,52 @@
 
 			} catch (Exception $e) {
 				return "Error creating course (" . $e->getMessage();
+			}
+
+		}
+
+		// - get all courses data
+		// * needs nothing
+		// ! return array or bool
+		public function getAllCoursesData() {
+
+			try {
+
+				// get all courses
+				$courses = $this->courseRepo->selectAll();
+
+				if ($courses === null) {
+					return [];
+				}
+
+				// create empty array
+				$coursesData = [];
+
+				foreach ($courses as $course) {
+
+					// construct array of courses
+					$coursesData[] = [
+
+						'course_id' => $course->getCourseId(),
+						'user_id' => $course->getUserId(),
+						'name' => $course->getName(),
+						'full_name' => $course->getFullName(),
+						'description' => $course->getDescription(),
+						'knowledge_area' => $course->getKnowledgeArea(),
+						'career' => $course->getCareer(),
+						'credits' => $course->getCredits(),
+						'thematic_content' => $course->getThematicContent(),
+						'semester' => $course->getSemester(),
+						'professor' => $course->getProfessor()
+
+					];
+
+				}
+
+				return $coursesData;
+
+			} catch (Exception $e) {
+				return "Error fetching courses: " . $e->getMessage();
 			}
 
 		}
@@ -197,7 +244,6 @@
 			}
 
 		}
-
 		// - create note rule
 		// * needs JSON and string
 		// ! return string

@@ -130,9 +130,24 @@
 						$JSONresponse['title'] = "User and course created and linked successfully!";
 						$JSONresponse['message'] = "Dashboard will be updated in a few moments";
 
-					} else if ( $action === 'accountFetch' ) {
+					} else if ( $action === 'refreshDashboard' ) {
 
-						// get courses
+						// get courses return as JSON
+						$coursesResult = $this->dashboard_service->getAllCoursesData();
+
+						if (!is_array($coursesResult)) {
+
+							$JSONresponse['success'] = false;
+							$JSONresponse['title'] = "Error fetching courses.";
+							$JSONresponse['message'] = $coursesResult;
+
+						}
+
+						$JSONresponse['success'] = true;
+						$JSONresponse['title'] = "Courses retrieved successfully.";
+						$JSONresponse['message'] = "Found " . count($coursesResult) . " courses.";
+						$JSONresponse['data'] = $coursesResult; // - extra data
+
 
 					} else {
 
@@ -142,6 +157,7 @@
 					}
 
 					echo json_encode($JSONresponse);
+					exit;
 					return;
 
 				} catch (Exception $e) {
