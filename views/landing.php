@@ -23,7 +23,7 @@
 		<?php include 'page/header.php' ?>
 	</header>
 	<main>
-		landing xd
+
 	</main>
 
 </body>

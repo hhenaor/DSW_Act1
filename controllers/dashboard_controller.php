@@ -130,24 +130,60 @@
 						$JSONresponse['title'] = "User and course created and linked successfully!";
 						$JSONresponse['message'] = "Dashboard will be updated in a few moments";
 
-					} else if ( $action === 'refreshDashboard' ) {
 
-						// get courses return as JSON
+					} else if ( $action === 'createNotes' ) {
+
+                        $validationResponse = $this->dashboard_service->validateDataNoteRegister($data);
+                        if ($validationResponse !== true) {
+                            $JSONresponse['success'] = false;
+                            $JSONresponse['title'] = "Invalid Note Data";
+                            $JSONresponse['message'] = $validationResponse;
+                            echo json_encode($JSONresponse);
+                            return;
+                        }
+
+                        $creationResponse = $this->dashboard_service->createNoteRegister($data);
+                        if ($creationResponse !== true) {
+                            $JSONresponse['success'] = false;
+                            $JSONresponse['title'] = "Failed to Add Note";
+                            $JSONresponse['message'] = is_string($creationResponse) ? $creationResponse : "An error occurred while saving the note.";
+                            echo json_encode($JSONresponse);
+                            return;
+                        }
+
+                        $JSONresponse['success'] = true;
+                        $JSONresponse['title'] = "Note Added Successfully!";
+                        $JSONresponse['message'] = "The note has been registered.";
+
+						} else if ( $action === 'refreshDashboard' ) {
+
+
 						$coursesResult = $this->dashboard_service->getAllCoursesData();
 
+						$noteRulesResult = $this->dashboard_service->getAllNoteRulesData();
+
+						$errors = [];
 						if (!is_array($coursesResult)) {
-
-							$JSONresponse['success'] = false;
-							$JSONresponse['title'] = "Error fetching courses.";
-							$JSONresponse['message'] = $coursesResult;
-
+							$errors[] = $coursesResult;
+						}
+						if (!is_array($noteRulesResult)) {
+							$errors[] = $noteRulesResult;
 						}
 
-						$JSONresponse['success'] = true;
-						$JSONresponse['title'] = "Courses retrieved successfully.";
-						$JSONresponse['message'] = "Found " . count($coursesResult) . " courses.";
-						$JSONresponse['data'] = $coursesResult; // - extra data
+						if (!empty($errors)) {
+							// Si hubo algún error al obtener datos
+							$JSONresponse['success'] = false;
+							$JSONresponse['title'] = "Error fetching dashboard data.";
+							$JSONresponse['message'] = implode('; ', $errors);
 
+					}  else {
+
+							$JSONresponse['success'] = true;
+							$JSONresponse['title'] = "Dashboard data retrieved successfully.";
+							$JSONresponse['message'] = "Found " . count($coursesResult) . " courses and " . count($noteRulesResult) . " note rules.";
+							$JSONresponse['data']['courses'] = $coursesResult;
+							$JSONresponse['data']['note_rules'] = $noteRulesResult;
+						}
 
 					} else {
 
@@ -157,7 +193,6 @@
 					}
 
 					echo json_encode($JSONresponse);
-					exit;
 					return;
 
 				} catch (Exception $e) {

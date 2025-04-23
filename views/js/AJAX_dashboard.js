@@ -4,6 +4,8 @@ const overlay = document.getElementById('overlay');
 // * divs elements
 const courseTabDiv = document.getElementById('course-tab');
 const totalCoursesP = document.getElementById('total-courses');
+const noteRuleTabDiv = document.getElementById('note-rule-tab');
+const totalNoteRulesP = document.getElementById('total-note-rules');
 
 // * event listeners
 document.getElementById('add-course-btn').addEventListener('click', async () => {
@@ -126,6 +128,42 @@ document.getElementById('add-note_rule-btn').addEventListener('click', async () 
 
 });
 
+document.getElementById('add-notes-btn').addEventListener('click', async () => {
+
+    const noteData = await showModalMultiInput(
+        'Add Note',
+        'Enter the details for the new note:',
+        'Ensure the Note Rule ID exists and belongs to one of your courses.<br>The note value must be numeric and within the rule\'s limits.',
+        3,
+        ['Note Rule ID', 'Note Value (e.g., 4.5)', 'Comment (Optional)']
+    );
+
+    if (noteData) {
+        if (!noteData[0] || noteData[0].trim() === '' || !noteData[1] || noteData[1].trim() === '') {
+            showModal("Info", "Input Required", "Note Rule ID and Note Value are required.");
+            return;
+        }
+
+        await showOverlay('Adding note...');
+
+        const response = await AJAXRequest('createNotes', {
+            note_rule_id: noteData[0].trim(),
+            note_value: noteData[1].trim(),
+            comment: noteData[2].trim()
+        });
+
+        if (response.success) {
+
+            showModal("Success", response.title, response.message);
+            refreshDashboard();
+        } else {
+            showModal("Error", response.title, response.message);
+        }
+
+    }
+});
+
+
 // > FETCHS AND AJAX FUNCTIONS < //
 
 // - initial fetch: fetch account data and update the dashboard on load
@@ -175,96 +213,139 @@ async function AJAXRequest(method, requestData) {
 
 }
 
+
 // - function to reload account data and update dashboard
 async function refreshDashboard() {
 
 	showOverlay('Refreshing dashboard...');
 
-	// send request and wait
-	const response = await AJAXRequest('refreshDashboard', {});
-
-	// clean div
-	courseTabDiv.innerHTML = '';
-
-	// clean counter
+	courseTabDiv.innerHTML = '<p>Loading courses...</p>';
 	totalCoursesP.textContent = 'Linked to 0 courses.';
+	if (noteRuleTabDiv) noteRuleTabDiv.innerHTML = '<p>Loading note rules...</p>';
+	if (totalNoteRulesP) totalNoteRulesP.textContent = 'Found 0 note rules.';
 
-	// check if success and data exists
-	if ( response.success && Array.isArray(response.data) ) {
+	const response = await AJAXRequest('refreshDashboard');
 
-		const courses = response.data;
+    courseTabDiv.innerHTML = '';
+    if (noteRuleTabDiv) noteRuleTabDiv.innerHTML = '';
 
-		console.log(courses);
 
-		// update counter
-		totalCoursesP.textContent = `Linked to ${courses.length} courses.`;
+	if ( response.success && response.data ) {
 
-		if (courses.length > 0) {
-
-			const table = document.createElement('table');
-			table.className = 'courses-table';
-
-			const thead = table.createTHead();
-			const headerRow = thead.insertRow();
-			const headers = ['ID', 'Name', 'Full Name', 'Credits', 'Professor', 'Actions'];
-
-			headers.forEach(text => {
-
-				const th = document.createElement('th');
-				th.textContent = text;
-				headerRow.appendChild(th);
-
-			});
-
-			const tbody = table.createTBody();
-			courses.forEach(course => {
-
-				const row = tbody.insertRow();
-
-				// add cells
-				const cellId = row.insertCell();
-				cellId.textContent = course.course_id;
-
-				console.log(course.course_id);
-
-				const cellName = row.insertCell();
-				cellName.textContent = course.name;
-
-				const cellFullName = row.insertCell();
-				cellFullName.textContent = course.full_name;
-
-				const cellCredits = row.insertCell();
-				cellCredits.textContent = course.credits;
-
-				const cellProfessor = row.insertCell();
-				cellProfessor.textContent = course.professor;
-
-				// course actions
-				const cellActions = row.insertCell();
-				cellActions.innerHTML = `
-					<button class="btn-gry" onclick="deleteCourse(${course.course_id})">Delete</button>`
-				;
-
-			});
-
-			// add table
-			courseTabDiv.appendChild(table);
-
+		const courses = response.data.courses;
+		if ( Array.isArray(courses) ) {
+			totalCoursesP.textContent = `Linked to ${courses.length} courses.`;
+			if (courses.length > 0) {
+				renderCoursesTable(courses);
+			} else {
+				courseTabDiv.innerHTML = '<p>No courses found.</p>';
+			}
 		} else {
-			courseTabDiv.innerHTML = '<p>No courses found.</p>';
+			totalCoursesP.textContent = 'Error loading courses.';
+			courseTabDiv.innerHTML = `<p style="color: red;">Could not load course data.</p>`;
+			console.error("Course data is not an array:", courses);
 		}
 
+        if (noteRuleTabDiv && totalNoteRulesP) {
+            const noteRules = response.data.note_rules;
+            if ( Array.isArray(noteRules) ) {
+                totalNoteRulesP.textContent = `Found ${noteRules.length} note rules.`;
+                if (noteRules.length > 0) {
+                    renderNoteRulesTable(noteRules);
+                } else {
+                    noteRuleTabDiv.innerHTML = '<p>No note rules found.</p>';
+                }
+            } else {
+                totalNoteRulesP.textContent = 'Error loading note rules.';
+                noteRuleTabDiv.innerHTML = `<p style="color: red;">Could not load note rule data.</p>`;
+                console.error("Note rule data is not an array:", noteRules);
+            }
+        } else {
+             console.warn("Note rule display elements not found in the DOM.");
+        }
+
+
 	} else {
+		const errorMessage = response.message || "Could not retrieve data from server.";
+		const errorTitle = response.title || "Error loading dashboard";
 
-		const errorMessage = response.message;
 		courseTabDiv.innerHTML = `<p style="color: red;">Error: ${errorMessage}</p>`;
+        if (noteRuleTabDiv) noteRuleTabDiv.innerHTML = `<p style="color: red;">Error: ${errorMessage}</p>`;
 
-		showModal("Error", response.title || "Error loading data", errorMessage);
-
+		showModal("Error", errorTitle, errorMessage);
 	}
 
 	hideOverlay();
 
+}
+
+function renderCoursesTable(courses) {
+	const table = document.createElement('table');
+	table.className = 'courses-table';
+
+	const thead = table.createTHead();
+	const headerRow = thead.insertRow();
+	const headers = ['ID', 'Name', 'Full Name', 'Credits', 'Professor', 'Actions'];
+	headers.forEach(text => {
+		const th = document.createElement('th');
+		th.textContent = text;
+		headerRow.appendChild(th);
+	});
+
+	const tbody = table.createTBody();
+	courses.forEach(course => {
+		const row = tbody.insertRow();
+
+		row.insertCell().textContent = course.course_id;
+		row.insertCell().textContent = course.name;
+		row.insertCell().textContent = course.full_name;
+		row.insertCell().textContent = course.credits;
+		row.insertCell().textContent = course.professor;
+
+		const cellActions = row.insertCell();
+		cellActions.innerHTML = `
+			<button class="btn-gry btn-small" onclick="deleteCourse(${course.course_id})">Delete</button>
+            <!-- <button class="btn-sec btn-small" onclick="viewCourseDetails(${course.course_id})">View</button> -->
+		`;
+	});
+
+	courseTabDiv.innerHTML = '';
+	courseTabDiv.appendChild(table);
+}
+
+function renderNoteRulesTable(noteRules) {
+    if (!noteRuleTabDiv) return;
+
+	const table = document.createElement('table');
+	table.className = 'note-rules-table';
+
+	const thead = table.createTHead();
+	const headerRow = thead.insertRow();
+
+	const headers = ['Rule ID', 'Course ID', 'Note Count', 'Max Value', 'Actions'];
+	headers.forEach(text => {
+		const th = document.createElement('th');
+		th.textContent = text;
+		headerRow.appendChild(th);
+	});
+
+	const tbody = table.createTBody();
+	noteRules.forEach(rule => {
+		const row = tbody.insertRow();
+
+		row.insertCell().textContent = rule.note_rule_id;
+		row.insertCell().textContent = rule.course_id;
+		row.insertCell().textContent = rule.note_count;
+		row.insertCell().textContent = rule.max_value;
+
+		const cellActions = row.insertCell();
+		cellActions.innerHTML = `
+			<button class="btn-gry btn-small" onclick="deleteNoteRule(${rule.note_rule_id})">Delete</button>
+		`;
+	});
+
+	noteRuleTabDiv.innerHTML = '';
+	noteRuleTabDiv.appendChild(table);
 }
 
 

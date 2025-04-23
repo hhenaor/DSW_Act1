@@ -56,7 +56,12 @@
 
 		<div class="dash-bor">
 
+		<div class="row cont">
 			<h2>My Notes</h2>
+				<div class="row">
+					<button class="btn-man" id="add-notes-btn"> <img src="views/svg/plus.svg" alt="" srcset=""> Add notes</button>
+				</div>
+			</div>
 
 		</div>
 
@@ -65,7 +70,7 @@
 			<div class="row cont">
 				<h2>My courses</h2>
 				<div class="row">
-					<button class="btn-man" id="add-course-btn"> <img src="views/svg/book.svg" alt="" srcset=""> Add course</button>
+					<button class="btn-sec" id="add-course-btn"> <img src="views/svg/book.svg" alt="" srcset=""> Add course</button>
 				</div>
 			</div>
 
@@ -82,10 +87,18 @@
 		<div class="dash-bor">
 
 			<div class="row cont">
-				You have te create note rules to link your account to some courses.
+				<h2>My Note Rules</h2>
 				<div class="row">
 					<button class="btn-gry" id="add-note_rule-btn"> <img src="views/svg/plus.svg" alt="" srcset=""> Add note rule</button>
 				</div>
+			</div>
+
+			<p id="total-note-rules">Found 0 note rules.</p>
+
+			<br> <hr> <br>
+
+			<div id="note-rule-tab">
+
 			</div>
 
 		</div>
